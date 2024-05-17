@@ -1,0 +1,43 @@
+000102240517/*===================================================================*/
+000103240517/* CMDBUILDC - Build Command                                         */
+000104240517/*===================================================================*/
+000105240517/* Date         Int  Description                                     */
+000106240517/* ----------   ---  ------------------------------------------------*/
+000107240517/* 04/15/2024   jt   Original creation                               */
+000108240517/*===================================================================*/
+000200240517
+000201240517pgm
+000202240517
+000203240517Dcl  &p1    *char  150
+000204240517Dcl  &p2    *char  150
+000205240517Dcl  &p3    *char  150
+000206240517Dcl  &p4    *char  150
+000207240517Dcl  &p5    *char  150
+000212240517
+000214240517StrPCO *no
+000215240517MonMsg cpf0000
+000216240517
+000217240517ChgVar &p1 VALUE('CMD /C echo set' *BCAT '> C:\johntest\copycsv.bat')
+000218240517
+000219240517ChgVar &p2 VALUE('CMD /C copy C:\JOHNTEST2\*.pdf C:\JOHNTEST3\*.pdf' +
+000220240517                 *BCAT '>> C:\johntest\copycsv.bat')
+000221240517
+000222240517ChgVar &p3 VALUE('CMD /C copy C:\JOHNTEST2\*.pdf C:\JOHNTEST2\archive\*.pdf' +
+000223240517                 *BCAT '>> C:\johntest\copycsv.bat')
+000224240517
+000225240517ChgVar &p4 VALUE('CMD /C del  C:\JOHNTEST2\*.pdf' +
+000226240517                 *BCAT '>> C:\johntest\copycsv.bat')
+000227240517
+000228240517ChgVar &p5 VALUE('CMD /C exit' *BCAT '>> C:\johntest\copycsv.bat')
+000229240517
+000239240517
+000240240517StrPCCmd   PCCmd(&p1) Pause(*no)
+000241240517StrPCCmd   PCCmd(&p2) Pause(*no)
+000242240517StrPCCmd   PCCmd(&p3) Pause(*no)
+000243240517StrPCCmd   PCCmd(&p4) Pause(*no)
+000244240517StrPCCmd   PCCmd(&p5) Pause(*no)
+000245240517
+000253240517endpgm:
+000300240517endpgm
+000301240517
+000302240517/*===================================================================*/
