@@ -1,3 +1,4 @@
+<<<<<<< Upstream, based on origin/master
 set 
 C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 10 job# 645956.pdf
 C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 10 job# 677760.pdf
@@ -37,3 +38,48 @@ C:\JOHNTEST2\Detail Invoice - RONM splf# 15 job# 657312.pdf
 C:\JOHNTEST2\Detail Invoice - RONM splf# 17 job# 657312.pdf
 C:\JOHNTEST2\Detail Invoice - RONM splf# 8 job# 655771.pdf
        18 file(s) copied.
+=======
+set 
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 10 job# 645956.pdf
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 10 job# 677760.pdf
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 8 job# 653261.pdf
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 8 job# 653264.pdf
+C:\JOHNTEST2\Detail Invoice - CHRISTIN splf# 8 job# 653906.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 730186.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759596.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759600.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759608.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759614.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 10 job# 655768.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 10 job# 657304.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 10 job# 657305.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 11 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 13 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 15 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 17 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 8 job# 655771.pdf
+       18 file(s) copied.
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 10 job# 645956.pdf
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 10 job# 677760.pdf
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 8 job# 653261.pdf
+C:\JOHNTEST2\Detail Invoice - ASHLEYR splf# 8 job# 653264.pdf
+C:\JOHNTEST2\Detail Invoice - CHRISTIN splf# 8 job# 653906.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 730186.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759596.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759600.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759608.pdf
+C:\JOHNTEST2\Detail Invoice - LISA splf# 8 job# 759614.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 10 job# 655768.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 10 job# 657304.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 10 job# 657305.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 11 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 13 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 15 job# 657312.pdf
+C:\JOHNTEST2\Detail Invoice - RONM splf# 17 job# 657312.pdf
+
+
+C:\JOHNTEST2\Detail Invoice - RONM splf# 8 job# 655771.pdf
+       18 file(s) copied.
+       
+       
+>>>>>>> 949e109 test
