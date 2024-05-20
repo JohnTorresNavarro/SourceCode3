@@ -66,6 +66,7 @@
 006600150803      * 08.03.2015 DMA go back to 3 character coverage level codes     *
 006700150827      * 08.27.2015 JT  Created a xRef file to use new coverage level   *
 006800150827      *                codes
+<<<<<<< Upstream, based on origin/master
                   * 05/09/2024 jt  test fetch 
                   * 05/09/2024 jt  removed *inlr = *on
                   * 05/05/2024 jt  Show VJ
@@ -257,313 +258,505 @@
 024500090831     C                   End
 024600090901     C                   Else
 024700090901     C                   Eval      Group#New =   GROUP#
+=======
+006900            * 05/09/2024 jt  test fetch
+007000            * 05/09/2024 jt  removed *inlr = *on
+007100            * 05/05/2024 jt  Show VJ
+007200            * 05/09/2024 jt 3rd tst
+007300            * 05/09/2024 jt WTF
+007400            * 05/09/2024 jt Showing JA
+007500            * 05/16/2024 jt testing pull/fetch
+007600            * 05/16/2024 jt testing pull/fetch #2
+007700            * 05/16/2024 jt fetch #3
+007800            * 05/16/2024 jt #4
+007801240520      * 05/20/2024 jt #5
+007900150827
+008000120606      *  ***************************************************************
+008100090202     FPLNMSTN1  IF   E           K Disk
+008200110302     FPLNMST    IF   E           K Disk    Rename(PLNMSR:PLNR) Prefix(P)
+008300090202     FMCOV39    IF   E           K Disk
+008400110302     FMCOV      IF   E           K Disk    Rename(MCOVR:COVR) Prefix(M)
+008500090202     FMEMBER    IF   E           K Disk
+008600090202     FDEPNDC    IF   E           K Disk
+008700090202     FDCOV22    IF   E           K Disk
+008800090202     FGRATE     IF   E           K Disk
+008900090203     FADVTRMP   UF A E           K Disk
+009000090129     FADV10CSV  O  A E             Disk
+009100150820     FADVXREF   IF   E           K Disk
+009200010326
+009300061017     D                UDS
+009400061017     D LUSER                  25     32
+009500061017
+009600061017     D NumA            S             12A   Inz('000000000000') Varying
+009700090202     D Advantica       S              3A   Inz('ADV')
+009800090202     D Vision          S              3A   Inz('PVS')
+009900150820     D tier            S              7
+010000150820
+010100150820      *====================================================================
+010200150820
+010300090202     C     Advantica     Setll     PLNMSR
+010400090202     C                   Dou       %Eof(PLNMSTN1)
+010500090202     C     Advantica     Reade     PLNMSR
+010600130916     C                   If        Not %Eof(PLNMSTN1) AND PLNCAT = VISION
+010700090202     C     PlnKey        Chain     MCOV39
+010800090202     C                   If        Not %Found(MCOV39)
+010900090202     C                   Iter
+011000090202     C                   End
+011100130916     ***
+011200130916     C                   IF        (MCTRST = 590 And MCSUB# = 010 AND
+011300130916     C                             ACC# = 0006) OR
+011400130916     C                             (MCTRST = 590 And MCSUB# = 012 AND
+011500130916     C                             ACC# = 0013) OR
+011600140122     C                             (MCTRST = 590 And MCSUB# = 009 AND
+011700140122     C                             ACC# = 0024) OR
+011800130916     C                             (MCTRST = 591 And MCSUB# = 004 AND
+011900150224     C                             ACC# = 0366)  OR
+012000150224     C                             (MCTRST = 300 AND MCSUB# = 008 AND
+012100150224     C                             ACC# = 0066)
+012200120723     C                   Iter
+012300120723     C                   End
+012400090202      *
+012500090203     C                   Move      *Zeros        H@SSN             9 0
+012600090202     C     PlnKey        Setll     MCOV39
+012700090202     C                   Dou       %Eof(MCOV39)
+012800090202     C     PlnKey        Reade     MCOV39
+012900110221     C***************    If        Not %Eof(MCOV39) AND  ENRLDT  <> CANDT
+013000110221     C                   If        Not %Eof(MCOV39)
+013100090202     C                   If        CANDT     =   *Zeros
+013200090202     C                   Eval      CANDT     =   99999999
+013300090202     C                   End
+013400090202     C                   If        MCSSNO   <>   H@SSN
+013500110302     C                   If        ENRLDT    =   CANDT
+013600110302     C                   Exsr      DetermineSDT
+013700110302     C                   Else
+013800110302     C                   Eval      ActivePlan = 'N'
+013900110302     C                   End
+014000110302     C                   If        ActivePlan = 'N'
+014100061010     C                   Exsr      Process
+014200090202     C                   Eval      H@SSN     =   MCSSNO
+014300110302     C                   End
+014400061017     C                   End
+014500090202     C                   End
+014600061010     C                   EndDo
+014700090202     C                   End
+014800090202     C                   EndDo
+014900060817        *InLR = '1';
+015000010403
+015100060817      *---------------------------------------------------------------*
+015200061010     C     Process       Begsr
+015300060817      *---------------------------------------------------------------*
+015400090202     C     MCSSNO        Chain     Member
+015500090202      * If record is termed and has not been sent before, post it to term file & send it
+015600090202     C                   If        CANDT    <>   99999999
+015700090202     C     TrmKey        Chain     ADVTRMP
+015800090202     C                   If        %Found(ADVTRMP)
+015900090202     C                   LeaveSR
+016000090202     C                   Else
+016100090202     C                   Clear                   ADVTRMR
+016200090202     C                   Eval      ASSNO     =   MCSSNO
+016300090202     C                   Eval      ADEPNO    =   00
+016400090202     C                   Eval      APLAN     =   MCPLAN
+016500090202     C                   Eval      ACOVTYP   =   MCOVTP
+016600090202     C                   Eval      ATRST     =   MCTRST
+016700090202     C                   Eval      ASUB#     =   MCSUB#
+016800090202     C                   Eval      AACCT     =   ACC#
+016900090202     C                   Eval      ATRMPDT   =   Today
+017000100429     C                   Eval      ATERMDT   =   CANDT
+017100090203     C                   Move      CANDT         CANDTP
+017200090202      *
+017300090202      * Determine last day of month as term date
+017400090202     C                   Call      'LSTDAY'
+017500090203     C                   Parm                    CANDTP            8
+017600090202     C                   Parm                    LastDate          8
+017700090202     C                   Parm                    Error            20
+017800090203     C                   Move      LastDate      LastDateN
+017900100429     C****************** Eval      ATERMDT   =   LastDateN
+018000090203     C                   Write     ADVTRMR
+018100100429     C                   Exsr      WriteExport
+018200090202     C                   Endif
+018300100429     C                   Else
+018400100429     C                   Exsr      WriteExport
+018500090202     C                   Endif
+018600100429      *
+018700100429     C                   Endsr
+018800110302      *---------------------------------------------------------------*
+018900110302     C     DetermineSDT  Begsr
+019000110302      *---------------------------------------------------------------*
+019100110302      * This subroutine is only executed if it's a same-day term.
+019200110302      * It will search the member's coverages to determine if there is an
+019300110302      * active Advantica plan OTHER than the one that is a same-day term.
+019400110302      * The same-day term will be sent ONLY if there is no other active
+019500110302      * Advantica plan for the member.
+019600110302     C                   Move      'N'           ActivePlan        1
+019700110302     C     MCSSNO        Setll     MCOV
+019800110302     C     MCSSNO        Reade     MCOV
+019900110302     C                   Dow       Not %Eof(MCOV)
+020000110302     C                   If        MCANDT = *Zeros OR MCANDT > Today
+020100110302     C                                       AND MMCPLAN <> MCPLAN
+020200110302     C     PlnCovKey     Chain     PLNMST
+020300110302     C                   If        %Found(PLNMST)
+020400110302     C                   If        PPCARR     = Advantica
+020500110302     C                   Eval      ActivePlan = 'Y'
+020600110302     C                   Leave
+020700110302     C                   End
+020800110302     C                   End
+020900110302     C                   End
+021000110302     C     MCSSNO        Reade     MCOV
+021100110302     C                   Enddo
+021200110302     C                   Endsr
+021300100429      *---------------------------------------------------------------*
+021400100429     C     WriteExport   BEGSR
+021500100429      *---------------------------------------------------------------*
+021600090202     C                   Exsr      MiscFields
+021700090202     C     BIRTH         Mult      10000.0001    DOB               8 0
+021800090202     C     ENRLDT        Mult      10000.0001    EFFDT             8 0
+021900090202     C                   If        CANDT = 0  OR CANDT = 99999999
+022000090204     C                   Move      12319999      EXPDT             8 0
+022100090202     C                   Else
+022200090203     C                   Move      CANDT         CANDTP
+022300090202      * Determine last day of month as term date
+022400090202     C                   Call      'LSTDAY'
+022500090203     C                   Parm                    CANDTP
+022600090203     C                   Parm                    LastDate
+022700090203     C                   Parm                    Error
+022800090203     C                   Move      LastDate      LastDateN         8 0
+022900090203     C     LastDateN     Mult      10000.0001    EXPDT
+023000090202     C                   Endif
+023100110221      * Carlos at Advantica has requested same day terms
+023200110221     C                   If        ENRLDT    =   CANDT
+023300110221     C                   Eval      EXPDT     =   ENRLDT
+023400110221     C     EXPDT         Mult      10000.0001    EXPDT
+023500110221     C                   End
+023600110221      *
+023700090202     C                   Eval      SSNO      =   MCSSNO
+023800090130     C                   Eval      REL       =   '18 '
+023900090901     C                   Clear                   Group#New        15
+024000090923      *
+024100090923     C                   If        GROUP#    =   'SSMGEN    '  Or
+024200090923     C                             GROUP#    =   'SSMTNT    '
+024300090831     C                   If        EMPST     =   'C'
+024400090831     C                   Eval      Group#New =   'SSM 3     '
+024500090831     C                   Else
+024600090831     C                   If        GROUP#    =   'SSM       '
+024700090831     C                   Eval      Group#New =   'SSM GEN   '
+>>>>>>> ea8ad00 test
 024800090831     C                   End
-024900090130     C                   Exsr      WriteSpLine
-025000090130     C                   If        MCOVTP   <>   'TIN'
-025100090202     C                   Exsr      Dependent
-025200090130     C                   End
-025300060829      *
-025400060817     C                   Endsr
-025500090130      *---------------------------------------------------------------*
-025600090130     C     WriteSpLine   BEGSR
-025700090130      *---------------------------------------------------------------*
-025800090130     C                   Eval      WKRECORD  =   '"' +
-025900090831     C                                           GROUP#New      + '","' +
-026000150317     C                              %Trim(%Editc(MCSSNO:'X'))   + '","' +
-026100090130     C                                           SUBPOL         + '","' +
-026200150317     C                              %Trim(%Editc(MCSSNO:'X'))   + '","' +
-026300090130     C                                           MEMPOL         + '","' +
-026400150317     C                                %Trim(%Editc(SSNO:'X'))   + '","' +
-026500150317     C                              %Trim(%Editc(MCSSNO:'X'))   + '","' +
-026600090130     C                                           TIER           + '","' +
-026700090204     C                                           LNAME          + '","' +
-026800090204     C                                           FNAME          + '","' +
-026900090204     C                                           MI             + '","' +
-027000090130     C                                           ADDR1          + '","' +
-027100090130     C                                           ADDR2          + '","' +
-027200090130     C                                           CITY           + '","' +
-027300090130     C                                           STATE          + '","' +
-027400120606     C*****************             %Trim(%Editc(ZIP:'P'))      + '","' +
-027500120606     C                              %Trim(%Editc(ZIP:'X'))      + '","' +
-027600090130     C                                           HP             + '","' +
-027700090130     C                                           WP             + '","' +
-027800090130     C                                           CP             + '","' +
-027900090204     C                                           GENDER         + '","' +
-028000090204     C                                 %Trim(%Editw(DOB:'0  /  /    ')) +
-028100090202     C                                                            '","' +
-028200090130     C                                           REL            + '","' +
-028300090204     C                               %Trim(%Editw(EFFDT:'0  /  /    ')) +
-028400090202     C                                                            '","' +
-028500090204     C                               %Trim(%Editw(EXPDT:'0  /  /    ')) +
-028600090202     C                                                            '","' +
-028700090130     C                                           NSUF           + '","' +
-028800090130     C                                           EMAIL          + '","' +
-028900090130     C                                           MARSTS         + '",'
-029000090130     C                   Write     ADV10CSR
-029100090130      *
-029200090130     C                   Endsr
-029300080409      *  _____________________________________________________________
-029400080409      * *                                                             *
-029500080409      * *        Write Excel Spreadsheet Title to CSV File            *
-029600080409      * *_____________________________________________________________*
-029700080409     C     WriteSpTitle  BEGSR
-029800080409     C*
-029900090202     C                   Eval      WKRECORD = '"' + 'GroupNumber' + '","' +
-030000090202     C                                         'SubscriberNumber' + '","' +
-030100090202     C                                   'SubscriberPolicyNumber' + '","' +
-030200090202     C                                             'MemberNumber' + '","' +
-030300090202     C                                        'MemerPolicyNumber' + '","' +
-030400090202     C                                     'SocialSecurityNumber' + '","' +
-030500090202     C                                            'SubscriberSSN' + '","' +
-030600090202     C                                                 'TierCode' + '","' +
-030700090202     C                                                 'LastName' + '","' +
-030800090202     C                                                'FirstName' + '","' +
-030900090202     C                                               'MiddleName' + '","' +
-031000090202     C                                                 'Address1' + '","' +
-031100090202     C                                                 'Address2' + '","' +
-031200090202     C                                                     'City' + '","' +
-031300090202     C                                                    'State' + '","' +
-031400090202     C                                                      'Zip' + '","' +
-031500090202     C                                                'HomePhone' + '","' +
-031600090202     C                                                'WorkPhone' + '","' +
-031700090202     C                                                'CellPhone' + '","' +
-031800090202     C                                                   'Gender' + '","' +
-031900090202     C                                              'DateOfBirth' + '","' +
-032000090202     C                                         'RelationshipCode' + '","' +
-032100090202     C                                            'EffectiveDate' + '","' +
-032200090202     C                                           'ExpirationDate' + '","' +
-032300090202     C                                               'NameSuffix' + '","' +
-032400090202     C                                                    'Email' + '","' +
-032500090202     C                                            'MaritalStatus' + '",'
-032600090129     C                   Write     ADV10CSR
-032700080409     C*
-0328000901290320 C                   EndSr
-032900060817
-033000090202      *---------------------------------------------------------------*
-033100090202     C     MiscFields    Begsr
-033200090202      *---------------------------------------------------------------*
-033300090202      *
-033400090202     C                   Exsr      GetGrp
-033500090202     C     BIRTH         Mult      10000.0001    DOB               8 0
-033600090204     C                   Eval      LNAME      =  MLNAME
-033700090204     C                   Eval      FNAME      =  MFNAME
-033800090204     C                   Eval      MI         =  MMI
-033900090204     C                   Eval      GENDER     =  SEX
-034000090202     C                   Move      *Blanks       SUBPOL           11
-034100090202     C                   Move      *Blanks       MEMPOL           11
-034200090202     C                   Move      *Blanks       HP               10
-034300090202     C                   Move      *Blanks       WP               10
-034400090202     C                   Move      *Blanks       CP               10
-034500090202     C                   Move      *Blanks       NSUF             11
-034600090202     C                   Move      *Blanks       EMAIL             5
-034700090202     C                   Move      *Blanks       MARSTS           14
-034800090202     C                   Exsr      CovCxref
-0349000902020320 C                   EndSr
-035000090202
-035100090130      *---------------------------------------------------------------*
-035200090130     C     Dependent     Begsr
-035300090130      *---------------------------------------------------------------*
-035400090130      *
-035500090130     C     MCSSNO        Setll     DEPENR
-035600090130     C                   Dou       %Eof(DEPNDC)
-035700090130     C     MCSSNO        Reade     DEPENR
-035800090130     C                   IF        Not %Eof(DEPNDC)
-035900090130      *
-036000090130     C     DepKey        Chain     DCOVR
-036100090130     C                   IF        %Found(DCOV22)
-036200090130      *
-036300090130     C                   Exsr      $DCOV
+024900090923     C                   If        GROUP#    =   'SSMGEN    '
+025000090923     C                   Eval      Group#New =   'SSM GEN   '
+025100090923     C                   End
+025200090923     C                   If        GROUP#    =   'SSMTNT    '
+025300090923     C                   Eval      Group#New =   'SSM TNT   '
+025400090923     C                   End
+025500090831     C                   End
+025600090901     C                   Else
+025700090901     C                   Eval      Group#New =   GROUP#
+025800090831     C                   End
+025900090130     C                   Exsr      WriteSpLine
+026000090130     C                   If        MCOVTP   <>   'TIN'
+026100090202     C                   Exsr      Dependent
+026200090130     C                   End
+026300060829      *
+026400060817     C                   Endsr
+026500090130      *---------------------------------------------------------------*
+026600090130     C     WriteSpLine   BEGSR
+026700090130      *---------------------------------------------------------------*
+026800090130     C                   Eval      WKRECORD  =   '"' +
+026900090831     C                                           GROUP#New      + '","' +
+027000150317     C                              %Trim(%Editc(MCSSNO:'X'))   + '","' +
+027100090130     C                                           SUBPOL         + '","' +
+027200150317     C                              %Trim(%Editc(MCSSNO:'X'))   + '","' +
+027300090130     C                                           MEMPOL         + '","' +
+027400150317     C                                %Trim(%Editc(SSNO:'X'))   + '","' +
+027500150317     C                              %Trim(%Editc(MCSSNO:'X'))   + '","' +
+027600090130     C                                           TIER           + '","' +
+027700090204     C                                           LNAME          + '","' +
+027800090204     C                                           FNAME          + '","' +
+027900090204     C                                           MI             + '","' +
+028000090130     C                                           ADDR1          + '","' +
+028100090130     C                                           ADDR2          + '","' +
+028200090130     C                                           CITY           + '","' +
+028300090130     C                                           STATE          + '","' +
+028400120606     C*****************             %Trim(%Editc(ZIP:'P'))      + '","' +
+028500120606     C                              %Trim(%Editc(ZIP:'X'))      + '","' +
+028600090130     C                                           HP             + '","' +
+028700090130     C                                           WP             + '","' +
+028800090130     C                                           CP             + '","' +
+028900090204     C                                           GENDER         + '","' +
+029000090204     C                                 %Trim(%Editw(DOB:'0  /  /    ')) +
+029100090202     C                                                            '","' +
+029200090130     C                                           REL            + '","' +
+029300090204     C                               %Trim(%Editw(EFFDT:'0  /  /    ')) +
+029400090202     C                                                            '","' +
+029500090204     C                               %Trim(%Editw(EXPDT:'0  /  /    ')) +
+029600090202     C                                                            '","' +
+029700090130     C                                           NSUF           + '","' +
+029800090130     C                                           EMAIL          + '","' +
+029900090130     C                                           MARSTS         + '",'
+030000090130     C                   Write     ADV10CSR
+030100090130      *
+030200090130     C                   Endsr
+030300080409      *  _____________________________________________________________
+030400080409      * *                                                             *
+030500080409      * *        Write Excel Spreadsheet Title to CSV File            *
+030600080409      * *_____________________________________________________________*
+030700080409     C     WriteSpTitle  BEGSR
+030800080409     C*
+030900090202     C                   Eval      WKRECORD = '"' + 'GroupNumber' + '","' +
+031000090202     C                                         'SubscriberNumber' + '","' +
+031100090202     C                                   'SubscriberPolicyNumber' + '","' +
+031200090202     C                                             'MemberNumber' + '","' +
+031300090202     C                                        'MemerPolicyNumber' + '","' +
+031400090202     C                                     'SocialSecurityNumber' + '","' +
+031500090202     C                                            'SubscriberSSN' + '","' +
+031600090202     C                                                 'TierCode' + '","' +
+031700090202     C                                                 'LastName' + '","' +
+031800090202     C                                                'FirstName' + '","' +
+031900090202     C                                               'MiddleName' + '","' +
+032000090202     C                                                 'Address1' + '","' +
+032100090202     C                                                 'Address2' + '","' +
+032200090202     C                                                     'City' + '","' +
+032300090202     C                                                    'State' + '","' +
+032400090202     C                                                      'Zip' + '","' +
+032500090202     C                                                'HomePhone' + '","' +
+032600090202     C                                                'WorkPhone' + '","' +
+032700090202     C                                                'CellPhone' + '","' +
+032800090202     C                                                   'Gender' + '","' +
+032900090202     C                                              'DateOfBirth' + '","' +
+033000090202     C                                         'RelationshipCode' + '","' +
+033100090202     C                                            'EffectiveDate' + '","' +
+033200090202     C                                           'ExpirationDate' + '","' +
+033300090202     C                                               'NameSuffix' + '","' +
+033400090202     C                                                    'Email' + '","' +
+033500090202     C                                            'MaritalStatus' + '",'
+033600090129     C                   Write     ADV10CSR
+033700080409     C*
+0338000901290320 C                   EndSr
+033900060817
+034000090202      *---------------------------------------------------------------*
+034100090202     C     MiscFields    Begsr
+034200090202      *---------------------------------------------------------------*
+034300090202      *
+034400090202     C                   Exsr      GetGrp
+034500090202     C     BIRTH         Mult      10000.0001    DOB               8 0
+034600090204     C                   Eval      LNAME      =  MLNAME
+034700090204     C                   Eval      FNAME      =  MFNAME
+034800090204     C                   Eval      MI         =  MMI
+034900090204     C                   Eval      GENDER     =  SEX
+035000090202     C                   Move      *Blanks       SUBPOL           11
+035100090202     C                   Move      *Blanks       MEMPOL           11
+035200090202     C                   Move      *Blanks       HP               10
+035300090202     C                   Move      *Blanks       WP               10
+035400090202     C                   Move      *Blanks       CP               10
+035500090202     C                   Move      *Blanks       NSUF             11
+035600090202     C                   Move      *Blanks       EMAIL             5
+035700090202     C                   Move      *Blanks       MARSTS           14
+035800090202     C                   Exsr      CovCxref
+0359000902020320 C                   EndSr
+036000090202
+036100090130      *---------------------------------------------------------------*
+036200090130     C     Dependent     Begsr
+036300090130      *---------------------------------------------------------------*
 036400090130      *
-036500090130     C                   Endif
-036600090130      *
-036700090130     C                   Endif
-036800090130     C                   Enddo
+036500090130     C     MCSSNO        Setll     DEPENR
+036600090130     C                   Dou       %Eof(DEPNDC)
+036700090130     C     MCSSNO        Reade     DEPENR
+036800090130     C                   IF        Not %Eof(DEPNDC)
 036900090130      *
-037000090130    C                   Endsr
-037100090130      *---------------------------------------------------------------*
-037200090130     C     $DCOV         BegSr
-037300090130      *---------------------------------------------------------------*
-037400090130     C     DepKey        SetGt     DCOVR
-037500090130     C                   Dou       %Eof(DCOV22)
-037600090130     C     DepKey        Readpe    DCOVR
-037700110221     C***************    If        Not %Eof(DCOV22) AND DENRDT <> CCANDT
-037800110221     C                   If        Not %Eof(DCOV22)
+037000090130     C     DepKey        Chain     DCOVR
+037100090130     C                   IF        %Found(DCOV22)
+037200090130      *
+037300090130     C                   Exsr      $DCOV
+037400090130      *
+037500090130     C                   Endif
+037600090130      *
+037700090130     C                   Endif
+037800090130     C                   Enddo
 037900090130      *
-038000100429     C                   If        CCANDT   <>   99999999  And
-038100100429     C                             CCANDT   <>   *Zero
-038200100429      * Prepare dependent-info part of term file key
-038300100429     C                   Eval      MDSEQ#   =    DSEQ#
-038400100429     C                   Eval      CANDT    =    CCANDT
-038500100429     C                   Eval      MCPLAN   =    DVPLAN
-038600100429     C     TrmKey        Chain     ADVTRMP
-038700100429     C                   If        %Found(ADVTRMP)
-038800100429     C                   LeaveSr
-038900100429     C                   Else
-039000100429     C                   Clear                   ADVTRMR
-039100100429     C                   Eval      ASSNO    =    MCSSNO
-039200100429     C                   Eval      ADEPNO   =    DSEQ#
-039300100429     C                   Eval      APLAN    =    DVPLAN
-039400100429     C                   Eval      ACOVTYP  =    MCOVTP
-039500100429     C                   Eval      ATRST    =    DVTRST
-039600100429     C                   Eval      ASUB#    =    DVSUB#
-039700100429     C                   Eval      AACCT    =    ACC#
-039800100429     C                   Eval      ATRMPDT  =    Today
-039900100429     C                   Eval      ATERMDT  =    CCANDT
-040000100429     C                   Write     ADVTRMR
-040100100429     C                   Exsr      WriteDepExp
-040200100429     C                   Endif
-040300100429     C                   Else
-040400100429     C                   Exsr      WriteDepExp
-040500090130     C                   LEAVESR
-040600100429     C                   Endif
-040700090130      *
-040800090130     C                   Endif
-040900090130     C                   Enddo
-041000090130      *
-041100090130     C                   EndSr
-041200100429      *---------------------------------------------------------------*
-041300100429     C     WriteDepExp   Begsr
-041400100429      *---------------------------------------------------------------*
-041500100429     C                   Movel     DLNAME        LNAME            18
-041600100429     C                   Movel     DFNAME        FNAME            12
-041700100429     C                   Movel     DMI           MI                1
-041800100429     C                   Movel     DSEX          GENDER            1
-041900100429     C                   Eval      SSNO      =   DEPSS#
-042000100429     C     DBIRTH        Mult      10000.0001    DOB
-042100100429     C     DENRDT        Mult      10000.0001    EFFDT
-042200100429     C                   If        CCANDT    =   *Zeros
-042300100429     C                   Move      12319999      EXPDT
-042400100429     C                   Else
-042500100429     C                   Move      CCANDT        CANDTP
-042600100429      * Determine last day of month as term date
-042700100429     C                   Call      'LSTDAY'
-042800100429     C                   Parm                    CANDTP
-042900100429     C                   Parm                    LastDate
-043000100429     C                   Parm                    Error
-043100100429     C                   Move      LastDate      LastDateN
-043200100429     C     LastDateN     Mult      10000.0001    EXPDT
-043300100429     C                   Endif
-043400110221      * Carlos at Advantica has requested same day terms
-043500110310     C                   If        DENRDT    =   CCANDT
-043600110310     C                   Eval      EXPDT     =   DENRDT
-043700110221     C     EXPDT         Mult      10000.0001    EXPDT
-043800110221     C                   End
-043900110310     C                   If        CCANDT   <>   *Zeros
-044000110221     C                   If        DENRDT    =   CCANDT
-044100110221     C                   Eval      EXPDT     =   DENRDT
-044200110221     C     EXPDT         Mult      10000.0001    EXPDT
-044300110221     C                   End
-044400110221     C                   End
-044500100429      *
-044600100429     C                   Select
-044700100429     C                   When      DRELCD   =    'RWI'
-044800100429     C                   Movel     '01 '         REL               3
-044900100429     C                   When      DRELCD   =    'RHU'
-045000100429     C                   Movel     '01 '         REL
-045100100429     C                   When      DRELCD   =    'RDA'
-045200100429     C                   Movel     '19 '         REL
-045300100429     C                   When      DRELCD   =    'RSO'
-045400100429     C                   Movel     '19 '         REL
-045500100429     C                   Other
-045600150424     C                   Movel     '53 '         REL
-045700100429     C                   EndSl
-045800100429     C                   Exsr      WriteSpLine
-045900100429      *
-046000100429     C                   EndSr
-046100090130      *---------------------------------------------------------------*
-046200090202     C     CovCxref      Begsr
-046300090130      *---------------------------------------------------------------*
-046400090130      *
-046500140925     ****
-046600150824       tier = ' ';
-046700150824
-046800140925       IF MCTRST = 590 AND MCSUB# = 009 AND ACC# = 0017;
-046900140925          IF MCOVTP = 'TIN';
-047000140925             TIER = 'EMP';
-047100140925          ELSEIF MCOVTP = 'TFA' AND MCOVTP = 'TP2';
-047200140925             TIER = 'FAM';
-047300140925          ELSE;
-047400140925             TIER = 'E1D';
-047500140925          ENDIF;
-047600140925          LEAVESR;
-047700140925       ENDIF;
-047800150819
-047900150824       // Use xRef file to translate to codes...
-048000150824       setll (mctrst : mcsub# : mcplan :acc#) advxrefr;
-048100150824       reade (mctrst : mcsub# : mcplan :acc#) advxrefr;
-048200150820
-048300150820       dow not %eof;
-048400150820
-048500150820        if mcovtp = advcode1a;
-048600150820         tier = advcode1b;
-048700150820         leave;
-048800150820        endif;
-048900150820
-049000150824       reade (mctrst : mcsub# : mcplan :acc#) advxrefr;
-049100150824
-049200150820       enddo;
-049300150820
-049400090130    C                   Endsr
-049500150820
-049600090202      *---------------------------------------------------------------*
-049700090202     C     GetGrp        BEGSR
-049800090202      *---------------------------------------------------------------*
-049900090202     c     RatKey        Setll     GRATE
-050000090202     c     RatKey        Reade     GRATE
-050100090202     c                   Dow       Not %Eof(GRATE)
-050200090202     C                   If        (ENRLDT   >=  FRMDAT) and
-050300090203     C                             (CANDT    <=  TODAT)
-050400090204     C                   LeaveSr
-050500090202     C                   End
-050600090202     c     RatKey        Reade     GRATE
-050700090202     C                   EndDo
-050800090202      *
-050900090202    C                   Endsr
-051000090129      *---------------------------------------------------------------*
-051100090129     C     Klist         Begsr
-051200090129      *---------------------------------------------------------------*
-051300090129      *
-051400090202     C     PlnKey        Klist
-051500090202     C                   Kfld                    PLTRST
-051600090202     C                   Kfld                    PLSUB#
-051700090202     C                   Kfld                    PLPLAN
-051800090202     *
-051900110302     C     PlnCovKey     Klist
-052000110302     C                   Kfld                    MMCTRST
-052100110302     C                   Kfld                    MMCSUB#
-052200110302     C                   Kfld                    MMCPLAN
-052300110302     *
-052400090202     C     DepKey        Klist
-052500090202     C                   Kfld                    MCTRST
-052600090202     C                   Kfld                    MCSUB#
-052700090202     C                   Kfld                    MCPLAN
-052800090202     C                   Kfld                    DSSNO
-052900090202     C                   Kfld                    DPSEQ#
-053000090202     *
-053100090202     C     TrmKey        Klist
-053200090202     C                   Kfld                    MCSSNO
-053300090202     C                   Kfld                    MDSEQ#
-053400090202     C                   Kfld                    CANDT
-053500090202     C                   Kfld                    MCPLAN
-053600090202     C                   Kfld                    MCOVTP
-053700090202     C                   Kfld                    MCTRST
-053800090202     C                   Kfld                    MCSUB#
-053900090202     C                   Kfld                    ACC#
+038000090130    C                   Endsr
+038100090130      *---------------------------------------------------------------*
+038200090130     C     $DCOV         BegSr
+038300090130      *---------------------------------------------------------------*
+038400090130     C     DepKey        SetGt     DCOVR
+038500090130     C                   Dou       %Eof(DCOV22)
+038600090130     C     DepKey        Readpe    DCOVR
+038700110221     C***************    If        Not %Eof(DCOV22) AND DENRDT <> CCANDT
+038800110221     C                   If        Not %Eof(DCOV22)
+038900090130      *
+039000100429     C                   If        CCANDT   <>   99999999  And
+039100100429     C                             CCANDT   <>   *Zero
+039200100429      * Prepare dependent-info part of term file key
+039300100429     C                   Eval      MDSEQ#   =    DSEQ#
+039400100429     C                   Eval      CANDT    =    CCANDT
+039500100429     C                   Eval      MCPLAN   =    DVPLAN
+039600100429     C     TrmKey        Chain     ADVTRMP
+039700100429     C                   If        %Found(ADVTRMP)
+039800100429     C                   LeaveSr
+039900100429     C                   Else
+040000100429     C                   Clear                   ADVTRMR
+040100100429     C                   Eval      ASSNO    =    MCSSNO
+040200100429     C                   Eval      ADEPNO   =    DSEQ#
+040300100429     C                   Eval      APLAN    =    DVPLAN
+040400100429     C                   Eval      ACOVTYP  =    MCOVTP
+040500100429     C                   Eval      ATRST    =    DVTRST
+040600100429     C                   Eval      ASUB#    =    DVSUB#
+040700100429     C                   Eval      AACCT    =    ACC#
+040800100429     C                   Eval      ATRMPDT  =    Today
+040900100429     C                   Eval      ATERMDT  =    CCANDT
+041000100429     C                   Write     ADVTRMR
+041100100429     C                   Exsr      WriteDepExp
+041200100429     C                   Endif
+041300100429     C                   Else
+041400100429     C                   Exsr      WriteDepExp
+041500090130     C                   LEAVESR
+041600100429     C                   Endif
+041700090130      *
+041800090130     C                   Endif
+041900090130     C                   Enddo
+042000090130      *
+042100090130     C                   EndSr
+042200100429      *---------------------------------------------------------------*
+042300100429     C     WriteDepExp   Begsr
+042400100429      *---------------------------------------------------------------*
+042500100429     C                   Movel     DLNAME        LNAME            18
+042600100429     C                   Movel     DFNAME        FNAME            12
+042700100429     C                   Movel     DMI           MI                1
+042800100429     C                   Movel     DSEX          GENDER            1
+042900100429     C                   Eval      SSNO      =   DEPSS#
+043000100429     C     DBIRTH        Mult      10000.0001    DOB
+043100100429     C     DENRDT        Mult      10000.0001    EFFDT
+043200100429     C                   If        CCANDT    =   *Zeros
+043300100429     C                   Move      12319999      EXPDT
+043400100429     C                   Else
+043500100429     C                   Move      CCANDT        CANDTP
+043600100429      * Determine last day of month as term date
+043700100429     C                   Call      'LSTDAY'
+043800100429     C                   Parm                    CANDTP
+043900100429     C                   Parm                    LastDate
+044000100429     C                   Parm                    Error
+044100100429     C                   Move      LastDate      LastDateN
+044200100429     C     LastDateN     Mult      10000.0001    EXPDT
+044300100429     C                   Endif
+044400110221      * Carlos at Advantica has requested same day terms
+044500110310     C                   If        DENRDT    =   CCANDT
+044600110310     C                   Eval      EXPDT     =   DENRDT
+044700110221     C     EXPDT         Mult      10000.0001    EXPDT
+044800110221     C                   End
+044900110310     C                   If        CCANDT   <>   *Zeros
+045000110221     C                   If        DENRDT    =   CCANDT
+045100110221     C                   Eval      EXPDT     =   DENRDT
+045200110221     C     EXPDT         Mult      10000.0001    EXPDT
+045300110221     C                   End
+045400110221     C                   End
+045500100429      *
+045600100429     C                   Select
+045700100429     C                   When      DRELCD   =    'RWI'
+045800100429     C                   Movel     '01 '         REL               3
+045900100429     C                   When      DRELCD   =    'RHU'
+046000100429     C                   Movel     '01 '         REL
+046100100429     C                   When      DRELCD   =    'RDA'
+046200100429     C                   Movel     '19 '         REL
+046300100429     C                   When      DRELCD   =    'RSO'
+046400100429     C                   Movel     '19 '         REL
+046500100429     C                   Other
+046600150424     C                   Movel     '53 '         REL
+046700100429     C                   EndSl
+046800100429     C                   Exsr      WriteSpLine
+046900100429      *
+047000100429     C                   EndSr
+047100090130      *---------------------------------------------------------------*
+047200090202     C     CovCxref      Begsr
+047300090130      *---------------------------------------------------------------*
+047400090130      *
+047500140925     ****
+047600150824       tier = ' ';
+047700150824
+047800140925       IF MCTRST = 590 AND MCSUB# = 009 AND ACC# = 0017;
+047900140925          IF MCOVTP = 'TIN';
+048000140925             TIER = 'EMP';
+048100140925          ELSEIF MCOVTP = 'TFA' AND MCOVTP = 'TP2';
+048200140925             TIER = 'FAM';
+048300140925          ELSE;
+048400140925             TIER = 'E1D';
+048500140925          ENDIF;
+048600140925          LEAVESR;
+048700140925       ENDIF;
+048800150819
+048900150824       // Use xRef file to translate to codes...
+049000150824       setll (mctrst : mcsub# : mcplan :acc#) advxrefr;
+049100150824       reade (mctrst : mcsub# : mcplan :acc#) advxrefr;
+049200150820
+049300150820       dow not %eof;
+049400150820
+049500150820        if mcovtp = advcode1a;
+049600150820         tier = advcode1b;
+049700150820         leave;
+049800150820        endif;
+049900150820
+050000150824       reade (mctrst : mcsub# : mcplan :acc#) advxrefr;
+050100150824
+050200150820       enddo;
+050300150820
+050400090130    C                   Endsr
+050500150820
+050600090202      *---------------------------------------------------------------*
+050700090202     C     GetGrp        BEGSR
+050800090202      *---------------------------------------------------------------*
+050900090202     c     RatKey        Setll     GRATE
+051000090202     c     RatKey        Reade     GRATE
+051100090202     c                   Dow       Not %Eof(GRATE)
+051200090202     C                   If        (ENRLDT   >=  FRMDAT) and
+051300090203     C                             (CANDT    <=  TODAT)
+051400090204     C                   LeaveSr
+051500090202     C                   End
+051600090202     c     RatKey        Reade     GRATE
+051700090202     C                   EndDo
+051800090202      *
+051900090202    C                   Endsr
+052000090129      *---------------------------------------------------------------*
+052100090129     C     Klist         Begsr
+052200090129      *---------------------------------------------------------------*
+052300090129      *
+052400090202     C     PlnKey        Klist
+052500090202     C                   Kfld                    PLTRST
+052600090202     C                   Kfld                    PLSUB#
+052700090202     C                   Kfld                    PLPLAN
+052800090202     *
+052900110302     C     PlnCovKey     Klist
+053000110302     C                   Kfld                    MMCTRST
+053100110302     C                   Kfld                    MMCSUB#
+053200110302     C                   Kfld                    MMCPLAN
+053300110302     *
+053400090202     C     DepKey        Klist
+053500090202     C                   Kfld                    MCTRST
+053600090202     C                   Kfld                    MCSUB#
+053700090202     C                   Kfld                    MCPLAN
+053800090202     C                   Kfld                    DSSNO
+053900090202     C                   Kfld                    DPSEQ#
 054000090202     *
-054100090202     C     RatKey        Klist
-054200090202     C                   Kfld                    MCTRST
-054300090202     C                   Kfld                    MCSUB#
-054400090202     C                   Kfld                    MCPLAN
-054500090202     C                   Kfld                    MCAGEB
+054100090202     C     TrmKey        Klist
+054200090202     C                   Kfld                    MCSSNO
+054300090202     C                   Kfld                    MDSEQ#
+054400090202     C                   Kfld                    CANDT
+054500090202     C                   Kfld                    MCPLAN
 054600090202     C                   Kfld                    MCOVTP
-054700090202     *
-054800090129    C                   Endsr
-054900060817      *---------------------------------------------------------------*
-055000060817     C     *INZSR        BEGSR
-055100060817      *---------------------------------------------------------------*
-055200060817     C     *DATE         Mult      10000.0001    Today             8 0
-055300070111     C                   Movel     Today         ThisYear          4 0
-055400090202     C                   Exsr      WriteSpTitle
-055500090129     C                   EndSr
-055600010412
-055700010403     C/EJECT
+054700090202     C                   Kfld                    MCTRST
+054800090202     C                   Kfld                    MCSUB#
+054900090202     C                   Kfld                    ACC#
+055000090202     *
+055100090202     C     RatKey        Klist
+055200090202     C                   Kfld                    MCTRST
+055300090202     C                   Kfld                    MCSUB#
+055400090202     C                   Kfld                    MCPLAN
+055500090202     C                   Kfld                    MCAGEB
+055600090202     C                   Kfld                    MCOVTP
+055700090202     *
+055800090129    C                   Endsr
+055900060817      *---------------------------------------------------------------*
+056000060817     C     *INZSR        BEGSR
+056100060817      *---------------------------------------------------------------*
+056200060817     C     *DATE         Mult      10000.0001    Today             8 0
+056300070111     C                   Movel     Today         ThisYear          4 0
+056400090202     C                   Exsr      WriteSpTitle
+056500090129     C                   EndSr
+056600010412
+056700010403     C/EJECT
