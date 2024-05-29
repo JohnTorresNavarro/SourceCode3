@@ -1,0 +1,22 @@
+000100130218/* ASSURANT EXPORT                                                    */
+000200130313/* 591-004-0352  NATIONAL CRIME PREVENTION                            */
+000300130313/* SSK 03/13/2013                                                     */
+000400130211/*                                                                    */
+000500130211/* CARRIER CONTROL ID #0000000073 ASSURANT SPECIFIC                   */
+000600130211/*                                                                    */
+000700130211/*                                                                    */
+000800130211/* REMEMBER TO REMOVE TERM RECORDS FROM THE INITIAL RUN THAT FAILED   */
+000900130211/*  FROM THE TERM TRACKER FILE AEB004WF OR AT LEAST DECREMENT COUNT   */
+001000130211/*                                                                    */
+001100130211/*                                                                    */
+001200130211/*                                                                    */
+001300130211             PGM
+001301220817             top:
+009000220817             MONMSG     MSGID(CPI2401) CMPDTA(TEST) EXEC(GOTO +
+009001220817                          CMDLBL(CALLPGM))
+009002220817
+009003220817             callpgm:
+009004220817             STRPCO
+009005220817             monmsg cpf0000
+009006220817             STRPCCMD PCCMD('C:\PROG2\PROGRAM2.EXE')
+009100130211             ENDPGM

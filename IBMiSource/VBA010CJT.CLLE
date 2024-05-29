@@ -1,0 +1,64 @@
+000100150820/*============================================================================*/
+000200161221/* VBA010c - VBA Export                                                       */
+000300150820/*============================================================================*/
+000400150820/* Description:                                                               */
+000500150820/* Cigna Export                                                               */
+000600150820/*                                                                            */
+000700150820/*                                                                            */
+000800161221/* 12/21/16 - J. Torres  - Initial version                                    */
+000900150820/*                                                                            */
+001000150820/*============================================================================*/
+001100150625
+001200150723Pgm
+001300150625
+001400150723Dcl &LumDta   *Char  10
+001500150723Dcl &Luminx   *Char  10
+001600120802
+001700150724RmvLiblE RpgspPgmr
+001800150723MonMsg cpf2104
+001900120802
+002000150722/* Clear files...                                                      */
+002100161221ClrPFM vbadetail
+002200120802
+002300180115Call vba010rtes
+002400180108
+002500150722DltOvr *all
+002600180115
+002700180115goto endpgm
+002800150105
+002900150722/* FTP Script...                                                      */
+003000150105
+003100150722ChkObj Obj(QTEMP/IOFTPSC0) OBJTYPE(*FILE)
+003200150722MonMsg MsgID(CPF9801) EXEC(+
+003300150722 CrtPf File(QTemp/IOFTPSC0) SrcFile(GBSPGM/QDDSSRC) +
+003400150722            Option(*NoSrc *NoList))
+003500150105
+003600150722ClrPFM  QTemp/IOFTPSC0
+003700150105
+003800150722OvrDBF IOFTPSC0 ToFile(QTemp/IOFTPSC0)
+003900150105
+004000161221Call vba001r
+004100150105
+004200150722DltOvr *all
+004300150105
+004400161221CpyF QTemp/IOFTPSC0 lumpgm/qtxtsrc ToMbr(CMFRVBAPRT) +
+004500150722     MbrOpt(*Replace) FmtOpt(*CvtSrc)
+004600150105
+004700161221ClrPFM lumpgm/qtxtsrc Mbr(LOGVBANPRT)
+004800150105
+004900161221OvrDBF Input ToFile(lumpgm/qtxtsrc) Mbr(CMFRVBAPRT)
+005000150105
+005100161221OvrDBF Output ToFile(lumpgm/qtxtsrc) Mbr(LOGVBANPRT)
+005200150105
+005300150722Ftp RmtSys(LoopBack)
+005400150105
+005500150722DltOvr File(Input Output)
+005600150109
+005700170208/* eMail SubJect('VBA export is done') +              */
+005800170208/*       MsgTxt('File is produced, please send.') +   */
+005900170208/*       eMail(AS400OPERATORS@GBSIO.COM)              */
+006000150105
+006100150723EndPgm:
+006200150723EndPgm
+006300150722
+006400150820/*============================================================================*/

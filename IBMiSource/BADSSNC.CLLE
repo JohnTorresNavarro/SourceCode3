@@ -1,0 +1,39 @@
+000100151116/*=========================================================*/
+000200151116/* SENDHIOS - Send missing HIOS plans                      */
+000300151116/*=========================================================*/
+000400151116/* Send missing HIOS for Evergreen plans and update HIOS   */
+000500151116/* xRef file (HIOSXREF).                                   */
+000600151116/*=========================================================*/
+000700151116/* Date        Int  Description                            */
+000800151116/* ----------  ---  -------------------------------------- */
+000900151116/* 11/16/2015  JT   Original creation                      */
+001000151116/*                                                         */
+001100151116/*=========================================================*/
+001200151116
+001300160107Pgm parm(&group)
+001400151117
+001500160107Dcl    &group   *char (20)
+001600151201
+001700151117AddLibLE mailtool
+001800151117MonMsg cpf0000
+001900151117
+002000160107ClrPFM badssn
+002100160107
+002200160107/* Call program to find bad ssn #'s...                     */
+002300160107call badssnr &group
+002400151201
+002500151116/* Copy to IFS folder for emailing...                      */
+002600160107CpyToImPF FromFile(badssn) TOSTMF('/RXNGO/badssn.csv') +
+002700151116          MbrOpt(*Replace) StmFCodPag(*PCAscii) RcdDlm(*CrLf) +
+002800151116          DtaFmt(*Dlm) StrDlm(*DblQuote) RmvBlank(*Trailing) +
+002900151116          FldDlm(',')
+003000151116
+003100151116/* Email records...                                        */
+003200151116MailTool ToAddr(jtorres@gbsio.net) ToName('John Torres') +
+003300160107         FromAddr(jtorres@gbsio.net) Subject('Bad SSN#') +
+003400160107         Message('Plans with no HIOS') Attach('/RXNGO/badssn.csv')
+003500151201
+003600151116EndPgm:
+003700151116endpgm
+003800151116
+003900151116/*=========================================================*/

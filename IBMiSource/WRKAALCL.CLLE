@@ -1,0 +1,54 @@
+000100010219             PGM
+000200000000
+000300000000/* Declare program variables  */
+000400991201             DCL        VAR(&RQS) TYPE(*CHAR) LEN(8) VALUE(' ') /* +
+000500991201                          request */
+000600000707             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+000700991201             DCL        VAR(&RTNCOD) TYPE(*CHAR) LEN(8) VALUE(' ') +
+000800991201                          /* return code */
+000900991201             DCL        VAR(&LSTPGM) TYPE(*CHAR) LEN(10) VALUE(' ') +
+001000991201                          /* last pgm dsp */
+001100991201             DCL        VAR(&RCDDS) TYPE(*CHAR) LEN(2048) /* record +
+001200991201                          DS */
+001300991201             DCL        VAR(&VLDOPT) TYPE(*CHAR) LEN(60) VALUE(' ') +
+001400991201                          /* valid opt */
+001500991201             DCL        VAR(&VLDFKY) TYPE(*CHAR) LEN(60) VALUE(' ') +
+001600991201                          /* valid fnc */
+001700010219             DCL        VAR(&PFX241) TYPE(*CHAR) LEN(1) /* Data file +
+001800010219                          Prefix */
+001900000000
+002000991105             CRTDTAQ    DTAQ(QTEMP/MSGDTAQ) MAXLEN(80) TEXT('Program +
+002100991105                          Message Que')
+002200991105             MONMSG     MSGID(CPF0000)
+002300081120
+002400081120             DLTF       FILE(QTEMP/TRNUSRP)
+002500081120             MONMSG     MSGID(CPF0000)
+002600081120             CRTDUPOBJ  OBJ(TRNUSRP) FROMLIB(Y2KDDS) OBJTYPE(*FILE) +
+002700081120                          TOLIB(QTEMP)
+002800081120             CLRPFM     FILE(QTEMP/TRNUSRP)
+002900081120             OVRDBF     FILE(TRNUSRP) TOFILE(QTEMP/TRNUSRP) FRCRATIO(1)
+003000010219
+003100090828             OVRDBF     FILE(TRNMITLF) TOFILE(F.TRNMITLF)
+003200090602             OVRDBF     FILE(CARMST) TOFILE(F.CARMST)
+003300081120
+003400090602             SNDPGMMSG  MSGID(CPF9898) MSGF(QCPFMSG) +
+003500090602                          MSGDTA('Processing current transactions, +
+003600090602                          please be patient, thanks.') TOPGMQ(*EXT) +
+003700090602                          MSGTYPE(*STATUS)
+003800090602             DLYJOB     DLY(1)
+003900151005             OVRDBF     FILE(GRAT24) TOFILE(F.GRAT24)
+004000090602             CALL       PGM(LODAAL)
+004100081120
+004200000707             CHGVAR     VAR(&RQS) VALUE('LOAD')
+004300081119             CHGVAR     &VLDOPT   'I 01'
+004400081119             CHGVAR     &VLDFKY   'X 0406'
+004500070524
+004600081119               CALL       WRKAAL    (&RQS    /* initial request  */ +
+004700990824                                     &RTNCOD /* return code      */ +
+004800990824                                     &LSTPGM /* last program dsp */ +
+004900990824                                     &RCDDS  /* record DS        */ +
+005000990824                                     &VLDOPT /* valid options    */ +
+005100990824                                     &VLDFKY /* valid functions  */ )
+005200000127
+005300000210 ENDPGM:     RCLRSC
+005400991105             ENDPGM

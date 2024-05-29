@@ -1,0 +1,88 @@
+000100150820/*============================================================================*/
+000200150820/* Cig010c - Cigna Export                                                     */
+000300150820/*============================================================================*/
+000400150820/* Description:                                                               */
+000500150820/* Cigna Export                                                               */
+000600150820/*                                                                            */
+000700150820/*                                                                            */
+000800150820/* 07/23/15 - J. Torres  - Initial version                                    */
+000900150820/*                                                                            */
+001000150820/*============================================================================*/
+001100150625
+001200150723Pgm
+001300150625
+001400150723Dcl &LumDta   *Char  10
+001500150723Dcl &Luminx   *Char  10
+001600120802
+001700150724RmvLiblE RpgspPgmr
+001800150723MonMsg cpf2104
+001900120816
+002000151008/* Call libfile */
+002100150723
+002200150723RtvDtaAra DtaAra(*lda (1 10)) RtnVar(&LumDta)
+002300150723RtvDtaAra DtaAra(*lda (11 10)) RtnVar(&Luminx)
+002400120802
+002500151008chgvar &lumdta 'LUMDTAL'
+002600151008chgvar &luminx 'LUMINXLIVE'
+002700151008
+002800150722/* Clear files...                                                      */
+002900170331ClrPFM cig010wf
+003000170403ClrPFM cigdetail
+003100150109
+003200150109/* ELIG EXPORT */
+003300150722OvrDbF PARTICIPL1 ToFile(&LUMINX/PARTICIPL1)
+003400150722OvrDbF PARTCOVGL1 ToFile(&LUMINX/PARTCOVGL1)
+003500150722OvrDbF DEPENDNTL1 ToFile(&LUMINX/DEPENDNTL1)
+003600150722OvrDbF DEPNCOVGL1 ToFile(&LUMINX/DEPNCOVGL1)
+003700170331
+003800190208/* CPYF JTORRES/CIGWTRMP CIGWTRMP MBROPT(*REPLACE) */
+003900170331
+004000171205/* Call cig010rxxx */
+004100190211Call cig010rtxt
+004200120802
+004300170517CPYF JTORRES/CIGWTRMP CIGWTRMP MBROPT(*REPLACE)
+004400170517goto endpgm
+004500170517
+004600170512CpyToImPF FromFile(lumdtal/cigdetail) TOSTMF('/RXNGO/CIGNA.TXT') +
+004700170512          MbrOpt(*Replace) StmFCodPag(*PCAscii) RcdDlm(*CrLf) +
+004800170512          DtaFmt(*Dlm) StrDlm(*DblQuote) RmvBlank(*Trailing) +
+004900170512          FldDlm(',')
+005000170512
+005100170512DltOvr *all
+005200170331
+005300150722/* FTP Script...                                                      */
+005400150105
+005500150722ChkObj Obj(QTEMP/IOFTPSC0) OBJTYPE(*FILE)
+005600150722MonMsg MsgID(CPF9801) EXEC(+
+005700150722 CrtPf File(QTemp/IOFTPSC0) SrcFile(GBSPGM/QDDSSRC) +
+005800150722            Option(*NoSrc *NoList))
+005900150105
+006000150722ClrPFM  QTemp/IOFTPSC0
+006100150105
+006200150722OvrDBF IOFTPSC0 ToFile(QTemp/IOFTPSC0)
+006300150105
+006400180118Call cig001r
+006500150105
+006600150722DltOvr *all
+006700150105
+006800150722CpyF QTemp/IOFTPSC0 lumpgm/qtxtsrc ToMbr(CMFRCIGPRT) +
+006900150722     MbrOpt(*Replace) FmtOpt(*CvtSrc)
+007000150105
+007100150722ClrPFM lumpgm/qtxtsrc Mbr(LOGCIGNPRT)
+007200150105
+007300150722OvrDBF Input ToFile(lumpgm/qtxtsrc) Mbr(CMFRCIGPRT)
+007400150105
+007500150722OvrDBF Output ToFile(lumpgm/qtxtsrc) Mbr(LOGCIGNPRT)
+007600150105
+007700150722Ftp RmtSys(LoopBack)
+007800150105
+007900150722DltOvr File(Input Output)
+008000150109
+008100150722eMail SubJect('Cigna export is done') +
+008200150722      MsgTxt('File is produced, please send.') +
+008300170512      Email(jtorres@GBSIO.net)
+008400150105
+008500150723EndPgm:
+008600150723EndPgm
+008700150722
+008800150820/*============================================================================*/

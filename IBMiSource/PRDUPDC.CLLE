@@ -1,0 +1,29 @@
+000100160411/*============================================================================*/
+000200160411/* GROUP BENEFIT SERVICES SOFTWARE                                            */
+000300160411/* Termed records                                                             */
+000400160411/* Copy records from mapped folder to file...                                 */
+000500160411/*============================================================================*/
+000600160411
+000700160411Pgm
+000800160411
+000900160411CpyFrmImpF FromStmF('dbond/prdupda.csv') ToFile(jtorres/prdupd) +
+001000160411           MbrOpt(*replace) RcdDlm(*all) StrDlm(*none) RmvBlank(*none) +
+001100160411           FldDlm(',') FromRcd(2) RplNullVal(*FldDft)
+001200160411
+001300160411/* Call pgm to term records...                                                */
+001400160411Call prdupdr
+001500160411
+001600160411CpyF jtorres/prdupd jtorres/prdupdnew +
+001700160411     MbrOpt(*Replace) IncReL((*If processed *Eq ' '))
+001800160411
+001900160411/* eMail file to recipients as a csv file...                                  */
+002000160511eFile File(PRDUPDNEW) Lib(JTORRES) +
+002100160511      eMail(JTORRES@GBSIO.NET) +
+002200160511      ToFile(EXCEPT) Ext('.csv') +
+002300160511      MsgTxt('Exceptions')
+002400160411
+002500160411/* End of program */
+002600160411EndPgm:
+002700160411EndPgm
+002800160411
+002900160411/*============================================================================*/

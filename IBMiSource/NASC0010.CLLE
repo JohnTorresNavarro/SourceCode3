@@ -1,0 +1,27 @@
+000100130607/* NASCO EXPORT                                                       */
+000200130607/* 590-010-0004  MIDDLE EAST BROADCASTING                             */
+000300130607/*                                                                    */
+000400130607/* SSK 06/07/2013                                                     */
+000500130607/*                                                                    */
+000600130607/* CARRIER CONTROL ID #0000000084                                     */
+000700130607/*                                                                    */
+000800130607/*                                                                    */
+000900130607/* REMEMBER TO REMOVE TERM RECORDS FROM THE INITIAL RUN THAT FAILED   */
+001000130607/*  FROM THE TERM TRACKER FILE NASTERMP                               */
+001100130607/*                                                                    */
+001200081103             PGM
+001300081103
+001400160303             CALL       PGM(jtorres/NASC0011I)
+001500130715
+001600160303             CALL       PGM(jtorres/NASC0012)
+001700130612
+001800130607             EMAIL      SUBJECT('Nasco FI Elig Export') MSGTXT('File +
+001900130607                          has been produced for Middle East. +
+002000130607                          Tuesday/Thursday Folder.') +
+002100160303                          EMAIL(jtorres@GBSIO.COM)
+002200110210
+002300130607             SNDMSG     MSG('Nasco MEB ELIGIBILITY EXPORT HAS +
+002400160303                          COMPLETED NORMALLY.') TOUSR(jtorres)
+002500110210
+002600081103
+002700130612             ENDPGM

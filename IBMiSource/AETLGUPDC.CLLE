@@ -1,0 +1,37 @@
+000100190401/*===================================================================*/
+000200200318/* AETLGUPDC - Aetna - File Upload - Large groups                    */
+000300190401/*===================================================================*/
+000400190401/* Date       Int  Description                                       */
+000500190401/* --------   ---  --------------------------------------------------*/
+000600200318/* 03/18/20   jt   Original creation                                 */
+000700190401/*                                                                   */
+000800190401/*===================================================================*/
+000900190401
+001000190401Pgm
+001100190401
+001200200317Dcl  &Records   *dec    (10 0)
+001300190401
+001400200318CpyFrmImpF FromStmF('/tmp/aetlg.csv') ToFile(*libl/aetlg) +
+001500200318           MbrOpt(*replace) RcdDlm(*all) StrDlm(*none) RmvBlank(*none) +
+001600200318           FldDlm(',') FromRcd(2) RplNullVal(*flddft)
+001700200317
+001800200325OvrDBF caraccp gbsdtat/caraccp FrcRatio(1)
+001900200325OvrDBF carplnz gbsdtat/carplnz FrcRatio(1)
+002000200317
+002100200317call aetlgcrtr
+002200200317
+002300200317RtvMbrD aetsm NbrCurRcd(&Records)
+002400200317if (&Records = 0) then(+
+002500200317 do)
+002600200317 goto endpgm
+002700200317EndDo
+002800200316
+002900190401/* Send errors back to user, if any...                                        */
+003000200317  SQL2Eml 'select * from aetlg' ToXLS(aetlg.xls) +
+003100200325        eMail(*current) Subj('Records that were not updated')
+003200200317
+003300190401/* End of program */
+003400190401EndPgm:
+003500190401EndPgm
+003600190401
+003700190401/*===================================================================*/

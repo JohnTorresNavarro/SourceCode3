@@ -1,0 +1,83 @@
+000100230329/*===================================================================*/
+000112240221/* GAC010B - Pre-post Batch SQL Report                               */
+000113230329/*===================================================================*/
+000114230329/* Date         Int  Description                                     */
+000115230329/* ----------   ---  ------------------------------------------------*/
+000116240221/* 02/21/2024   jt   Original creation                               */
+000120230329/*===================================================================*/
+000121230329
+000122230426Pgm
+000123240221
+000124240221Dcl  &Records    *dec      (10 0)
+000125240221Dcl  &Lib        *char      10
+000126240221Dcl  &Create     *char      50
+000127240221Dcl  &Insert     *char      50
+000128240221Dcl  &Select     *char    2000
+000129240221Dcl  &Fields     *char    2000
+000130240221Dcl  &SqlStmt    *char    2500
+000131240221Dcl  &SqlEml     *char      30
+000132230329
+001152240221RtvMbrD prepstp RtnLib(&Lib) NbrCurRcd(&Records)
+001153240221
+001154240221DltF &lib/prepost
+001155240221MonMsg cpf0000
+001156240221
+001158240221if (&Records > 0) then(+
+001159240221 do)
+001160240221
+001161240221CrtPF File(&Lib/prepost) SrcFile(gadds/qddssrc) Option(*nosrc *nolist)
+001162240221
+001163240221ChgVar &Insert ('insert into' *bcat &Lib *tcat '/prepost')
+001164240221ChgVar &Fields (+
+001165240221' (agach,AHBCHNO,AHCAID,AHRELID,AHSMAN, +
+001166240221AHAGCY,AGNAM1,AHSUPER,AHCGRP,AHANAME,AHPMTE,AHPRID,AHBENRC,AHPREM, +
+001167240221AHSPLTPER,AHPDCRTEC,AHCOMM,AHBENRW,AHWHSL,AHTRNO) select +
+001168240221agach,AHBCHNO,AHCAID,AHRELID,AHSMAN, +
+001169240221AHAGCY,AGNAM1,AHSUPER,AHCGRP,AHANAME,AHPMTE,AHPRID,AHBENRC,AHPREM, +
+001170240221AHSPLTPER,AHPDCRTEC,AHCOMM,AHBENRW,AHWHSL,AHTRNO +
+001171240221from gbsdtat/"F.AGENCY",gadtat/prepstp,gadtat/accmstp +
+001172240221where ahacct = adacct and ahagcy = agcode')
+001173240221
+001174240221
+001175240221ChgVar &SqlStmt (&Insert *tcat &Fields)
+001176240221
+001177240221RunSql &SqlStmt Commit(*None)
+001178240221
+001179240221
+001180240221ChgVar &SqlEml ('select * from' *bcat &lib *tcat '/prepost')
+001181240221SQL2Eml &SqlEml ToXls('/tmp/prepost.xls') ColHdrs(*label) +
+001182240221         Subj('Prepost Records')
+001183240221
+001184240221GoTo EndPgm
+001185240221
+001186240221ChgVar &Create ('create table' *bcat &Lib *tcat '/prepost as(')
+001187240221
+001188240221ChgVar &Select (+
+001189240221'select +
+001190240221agach, ahbchno, ahcaid, ahrelid, ahsman, ahagcy, +
+001191240221agnam1, ahsuper, ahcgrp, ahaname, ahpmte, ahprid, +
+001192240221ahbenrc, ahprem, ahspltper, ahpdcrtec, ahcomm, +
+001193240221ahbenrw, ahwhsl, ahtrno +
+001194240221from "F.AGENCY",prepstp,accmstp +
+001195240221where ahacct = adacct and ahagcy = agcode +
+001196240221group by +
+001197240221agach,ahbchno,ahcaid,ahrelid,ahsman,ahagcy,agnam1,ahsuper, +
+001198240221ahcgrp,ahaname,ahpmte,ahprid,ahbenrc,ahprem,ahspltper, +
+001199240221ahpdcrtec,ahcomm,ahaoamt,ahbenrw,ahwhsl,ahtrno +
+001200240221order by ahcaid,ahaname,ahpmte) with data')
+001201240221
+001202240221ChgVar &SqlStmt (&Create *tcat &Select)
+001203240221
+001204240221RunSql &SqlStmt Commit(*None)
+001205240221
+001206240221ChgVar &SqlEml ('select * from' *bcat &lib *tcat '/prepost')
+001207240221SQL2Eml &SqlEml ToXls('/tmp/prepost.xls') ColHdrs(*label) +
+001208240221         Subj('Prepost Records')
+001209240221
+001210240221EndDo
+001211240221
+001212230329/* End of program */
+001213230329EndPgm:
+001214230329EndPgm
+001215230329
+001216230329/*===================================================================*/

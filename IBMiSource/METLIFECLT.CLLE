@@ -1,0 +1,56 @@
+000100140616/* ORIGINALLY CALLED PROMEEXCL                                        */
+000200140616/*           WRITTEN SUSIE ZIEN                                       */
+000300140616/*                ON 09/25/2007                                       */
+000400140616/*                                                                    */
+000500140616/* 06.16.2014.SSK.RENAMED AND DOCUMENTED                              */
+000600140616/*                ALSO ADDED SHUT OFF FILE                            */
+000700140616/*                                                                    */
+000800140616/*                                                                    */
+000900140616/*                                                                    */
+001000140616/*                                                                    */
+001100070228             PGM
+001200070925
+001300070925             OVRDBF     FILE(PLNMSTN1) TOFILE(F.PLNMSTN1)
+001400070925             OVRDBF     FILE(MCOV39) TOFILE(F.MCOV39)
+001500070925             OVRDBF     FILE(MEMBER) TOFILE(F.MEMBER)
+001600070925             OVRDBF     FILE(DEPNDC) TOFILE(F.DEPNDC)
+001700070925             OVRDBF     FILE(DCOV22) TOFILE(F.DCOV22)
+001800080117             OVRDBF     FILE(GRATE) TOFILE(QS36F/F.GRATE)
+001900100421             OVRDBF     FILE(CODES) TOFILE(F.CODES)
+002000080117             OVRDBF     FILE(PROEXP) TOFILE(PROEXP)
+002100160816             OVRDBF     FILE(METLIFTRM) TOFILE(METLIFTRM)
+002200160816             OVRDBF     FILE(METLIFEWF) TOFILE(METLIFEWF)
+002300160816             OVRDBF     FILE(METLIFEWFT) TOFILE(METLIFEWFT)
+002400160816             OVRDBF     FILE(METLIFEWTL) TOFILE(METLIFEWTL)
+002500160816
+002600160817goto skip
+002700160816
+002800070925
+002900160816             CLRPFM     FILE(METLIFEWF)
+003000070925
+003100160816             CALL       PGM(METLIFER)
+003200070925
+003300160817skip:
+003400160816
+003500160816             CLRPFM     FILE(METLIFEWFT)
+003600160729
+003700160816             CALL       PGM(METLIFERT)
+003800160729
+003900070925             DLTOVR     FILE(*ALL)
+004000070925
+004100160817goto email
+004200160729             EFILE      FILE(METLIFEWF) LIB(jtorres) +
+004300160729                          EMAIL(JTORRES@GBSIO.NET) +
+004400140616                          TOFILE(PROEXP) EXT('.txt') MSGTXT('Please +
+004500160817                          send this EDT file to Metlife.')
+004600160817email:
+004700070925
+004800160817             EFILE      FILE(METLIFEWFT) LIB(QS36F) +
+004900160909                       /*   EMAIL(DABESHOUSE@GBSIO.NET) */ +
+005000160909                          email(JTORRES@GBSIO.NET) TOFILE(METLFE) +
+005100160817                          EXT('.txt') MSGTXT('Please send this +
+005200160817                          EDT file to Metlife.')
+005300160729
+005400160816EndPgm:
+005500160816EndPgm
+005600160816

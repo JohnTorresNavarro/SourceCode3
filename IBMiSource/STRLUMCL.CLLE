@@ -1,0 +1,175 @@
+000100020815/********************************************************************/
+000200020815/* STRLUM          GROUP BENEFIT SERVICES SOFTWARE                  */
+000300020815/*                                                                  */
+000400020815/*         WRITTEN BY - DAVID KETTERMAN                             */
+000500020815/*         DATE       - 08/15/02                                    */
+000600020815/*                                                                  */
+000700020821/* START LUMINX MENU AND RECOVER LIBL WHEN FINISHED                 */
+000800020815/*                                                                  */
+000900060317/* REVISED BY SZZ                                                   */
+001000060317/* REVISION DATE 3/17/06                                            */
+001100060317/* REVISION CHANGED DBU TO VERSION 7 IN LIBL                        */
+001200020815/*                                                                  */
+001300060927/* REVISED BY SZZ                                                   */
+001400060927/* REVISION DATE 9/27/06                                            */
+001500060927/* REVISION CHANGED DBU TO VERSION 6 IN LIBL SINCE 7.0 NOT WORKING  */
+001600060927/*                                                                  */
+001700101101/* 11/01/10 DLK - REMOVE DBU FROM LIBL                              */
+001800101122/*                                                                  */
+001900101122/* REVISED BY SZZ                                                   */
+002000101122/* REVISION DATE 11/22/10                                           */
+002100101122/* REVISION CHANGED DBU TO VERSION 9                                */
+002200101101/*                                                                  */
+002300140725/* SSK.07.25.2014.WELL I AM TIRED OF ADDING DBU SO I AM CODING TO   */
+002400140725/*                   US PROGRAMMERS SINCE NO ONE ELSE WILL.         */
+002500140725/*                                                                  */
+002600161221/* 12/21/16 JVA - ADD LUMREDCARD TO LIBL                            */
+002700181024/* 10/24/18 DLK - UPDATE DBU TO VERSION 11 (YOU ARE WELCOME STEPHEN)*/
+002800181024/*                                                                  */
+002900020815/********************************************************************/
+003000010504
+003100010504             PGM
+003200020815             DCLF       FILE(STRLUMD)
+003300010504
+003400940331             DCL        VAR(&CURLIB) TYPE(*CHAR) LEN(10)
+003500020826             DCL        VAR(&RETURN) TYPE(*CHAR) LEN(8)
+003600020815             DCL        VAR(&HOLDLIBL) TYPE(*CHAR) LEN(2750)
+003700010504             DCL        VAR(&LIB) TYPE(*CHAR) LEN(10)
+003800020819             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+003900020815             DCL        VAR(&X) TYPE(*DEC) LEN(4 0)
+004000210129/*           DCL        VAR(&IN99) TYPE(*LGL) LEN(1) VALUE('0') */
+004100010504
+004200010504             MONMSG     MSGID(CPF2104 CPF2103)
+004300940331
+004400010504             CHGDTAARA  DTAARA(*LDA *ALL) VALUE(' ')
+004500020821
+004600020819             RTVJOBA    USER(&USER) USRLIBL(&HOLDLIBL) CURLIB(&CURLIB)
+004700010504
+004800020819             CHGVAR     VAR(&CONAME) VALUE('   ** Group Benefit +
+004900020819                          Services, Inc. **')
+005000020819/* PROGRAMMER OPTION */
+005100020819/* *IN99 ON = SHOW OPTION 03 - PROGRAMMER */
+005200020821/* SWS 8 ON = TELL MENU PROGRAM TO DISPLAY & ALLOW OPTION 99 ON */
+005300020821/*            MENU LUM (PROGRAMMERS ONLY)                       */
+005400020819
+005500160310             IF         COND(&USER = 'DLK       ' *OR +
+005600160310                             &USER = 'DAVEA     ' *OR +
+005700160310                             &USER = 'JALLEN    ' *OR +
+005800160310                             &USER = 'BREES     ' *OR +
+005900160310                             &USER = 'ANTHONYN  ' *OR +
+006000160310                             &USER = 'RICK      ' *OR +
+006100160310                             &USER = 'JTORRES   ' *OR +
+006200160310                             &USER = 'STREUSDELL') Then(do)
+006300160310
+006400020819             CHGVAR     VAR(&IN99) VALUE('1')
+006500020821             CHGDTAARA  DTAARA(*LDA (1 1)) VALUE('Y')
+006600030127    ENDDO
+006700020819
+006800020815
+006900020815/* PICK ENVIRONMENT  */
+007000020815
+007100020815 #DISPLAY:   SNDRCVF    RCDFMT(SCRN01)
+007200020815
+007300020815/* END  */
+007400020815             IF         COND(&IN03 *EQ '1') THEN(GOTO +
+007500020815                          CMDLBL(#FINISH))
+007600020815
+007700020815             IF         COND(&SELECT *NE '01' *AND &SELECT *NE '02' +
+007800020815                          *AND &SELECT *NE '03' *AND &SELECT *NE '1 +
+007900020815                          ' *AND &SELECT *NE '2 ' *AND &SELECT *NE +
+008000020815                          '3 ') THEN(GOTO CMDLBL(#DISPLAY))
+008100010504
+008200020819/* VALIDATE PROGRAMMER */
+008300020819
+008400020819             IF         COND((&SELECT *EQ '03' *OR &SELECT *EQ '3 ') +
+008500020819                          *AND (&IN99 *NE '1')) THEN(GOTO +
+008600020819                          CMDLBL(#DISPLAY))
+008700020819
+008800020815/* LIVE */
+008900020815             IF         COND(&SELECT *EQ '01' *OR &SELECT *EQ '1 ') +
+009000020815                          THEN(DO)
+009100180222             CHGLIBL    LIBL(QTEMP RPGSPPROD LUMMOD LUMPGM LUMDTAL +
+009200180222                          LUMINXLIVE LUMCARDS LUMREDCARD LUMNEWFMT +
+009300180222                          QGPL ADTPGMOSV QS36F PROFOUNDUI GBSMOD +
+009400180222                          GBSPGM) CURLIB(*CRTDFT)
+009500020815             ENDDO
+009600020815/* TEST */
+009700030626             IF         COND(&SELECT *EQ '02' *OR &SELECT *EQ '2 ') +
+009800030626                          THEN(DO)
+009900180411             CHGLIBL    LIBL(QTEMP LUMDTAT LUMPGMT RPGSPBETA LUMMOD +
+010000180411                          LUMPGM LUMINXLIVE LUMCARDS LUMREDCARD +
+010100180411                          LUMNEWFMT QGPL ADTPGMOSV QS36F PROFOUNDUI +
+010200180411                          GBSPGMT GBSMOD GBSPGM) CURLIB(*CRTDFT)
+010300020815             ENDDO
+010400020815/* PROG */
+010500020819             IF         COND(&SELECT *EQ '03' *OR &SELECT *EQ '3 ') +
+010600210129                          THEN(DO)
+010700180411             CHGLIBL    LIBL(QTEMP LUMDTAT LUMPGMT RPGSPBETA LUMMOD +
+010800180411                          LUMPGM LUMINXTEST LUMCARDS LUMREDCARD +
+010900180411                          LUMNEWFMT QGPL ADTPGMOSV QS36F PROFOUNDUI +
+011000180411                          GBSMOD GBSPGM) CURLIB(*CRTDFT)
+011100020815             ENDDO
+011200020815
+011300181024             IF         COND(&USER = 'DLK       ' *OR &USER = +
+011400181024                          'DAVEA     ' *OR &USER = 'JALLEN    ' *OR +
+011500181024                          &USER = 'STREUSDELL' *OR &USER = +
+011600181024                          'BREES     ' *OR &USER = 'ANTHONYN  ' *OR +
+011700181024                          &USER = 'RICK      ') THEN(DO)
+011800181024             ADDLIBLE   LIB(DBU11) POSITION(*LAST)
+011900140725             MONMSG     MSGID(CPF2103)
+012000140725             ENDDO
+012100020815
+012200020815/* LUMINX MENU  */
+012300010504
+012400210129/* LIVE */
+012500210129             IF         COND(&SELECT *EQ '01' *OR &SELECT *EQ '1 ') +
+012600210129                          THEN(DO)
+012700210201             CALL       PGM(LUMPGM/MNUDRVCL)
+012800210129             MONMSG     MSGID(CPF0000)
+012900210129             GOTO       CMDLBL(#DISPLAY)
+013000210129             ENDDO
+013100210129
+013200210129/* TEST */
+013300210129             IF         COND(&SELECT *EQ '02' *OR &SELECT *EQ '2 ') +
+013400210129                          THEN(DO)
+013500210129             CALL       PGM(LUMPGM/MNUDRVCL) PARM(&RETURN)
+013600210129             MONMSG     MSGID(CPF0000)
+013700210129             IF         COND(&RETURN *EQ 'CANCEL  ') THEN(DO)
+013800210129             GOTO       CMDLBL(#DISPLAY)
+013900210129             ENDDO
+014000210129             ENDDO
+014100210129
+014200210129/* PROG */
+014300210129             IF         COND(&SELECT *EQ '03' *OR &SELECT *EQ '3 ') +
+014400210129                          THEN(DO)
+014500210129             CALL       PGM(LUMPGM/MNUDRVCL) PARM(&RETURN)
+014600020815             MONMSG     MSGID(CPF0000)
+014700020826             IF         COND(&RETURN *EQ 'CANCEL  ') THEN(DO)
+014800020826             GOTO       CMDLBL(#DISPLAY)
+014900020826             ENDDO
+015000210129             ENDDO
+015100010504
+015200010504
+015300020815/* CLEAR LIBL OF ALL LUMINX LIBRARIES */
+015400010504
+015500020815 #FINISH:    CHGLIBL    LIBL(*NONE)
+015600010504
+015700010504/* REPLACE LIBL WITH WHAT IS WAS BEFORE THIS COMMAND WAS STARTED */
+015800010504
+015900020815             CHGVAR     VAR(&X) VALUE(0001)
+016000010504
+016100010504 START:      IF         COND(%SST(&HOLDLIBL &X 10) *NE '          ') +
+016200010504                          THEN(DO)
+016300010504             CHGVAR     VAR(&LIB) VALUE(%SST(&HOLDLIBL &X 10))
+016400010504             ADDLIBLE   LIB(&LIB) POSITION(*LAST)
+016500010504             CHGVAR     VAR(&X) VALUE(&X + 11)
+016600010504             GOTO       CMDLBL(START)
+016700010504             ENDDO
+016800010504
+016900020815             IF         COND(&CURLIB *NE '*NONE') THEN(DO)
+017000940331             CHGCURLIB  CURLIB(&CURLIB)
+017100020815             ENDDO
+017200020815
+017300010504             CHGDTAARA  DTAARA(*LDA *ALL) VALUE(' ')
+017400010504
+017500020815             ENDPGM

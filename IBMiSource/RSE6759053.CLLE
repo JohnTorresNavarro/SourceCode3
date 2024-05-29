@@ -1,0 +1,34 @@
+000100170908/*======================================================================*/
+000200180706/* TROFFCL - Transmission off - Do not send to carrier                  */
+000300170908/*======================================================================*/
+000400170908
+000500180515Pgm
+000600170908
+000700170908Dcl  &Program    *char    10
+000800180920Dcl  &Continue   *char     1
+000900170913
+001000180920/* Call program to see if authorized to use...                          */
+001100191219/* Call secauth parm('TROFFCL' &Continue) */
+001101191219Call CHKFNCAUTH ('TROCCFL' ' ' 'Y' &Continue)
+001200170908if Cond(&Continue *eq 'N') then(+
+001300170908 do)
+001400170908  goto EndPgm
+001500180709endDo
+001600170908
+001602190611/* Make sure it is running in Genie environment...                      */
+001603190611ChgVar &Continue ' '
+001604190611ChgVar &Program 'GBS0013C'
+001605190611Call ChkProfndr Parm(&Program &Continue)
+001606190611if Cond(&Continue *eq 'N') then(+
+001607190611 do)
+001608190611  goto EndPgm
+001609190611EndDo
+001610190611
+001611190611
+001700170908/* Call program...                                                      */
+001800180706Call troffselr
+001900180326
+002000170908EndPgm:
+002100170908EndPgm
+002200100518
+002300170908/*======================================================================*/

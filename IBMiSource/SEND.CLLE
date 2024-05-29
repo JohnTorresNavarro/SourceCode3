@@ -1,0 +1,16 @@
+000100130218/* ASSURANT EXPORT                                                    */
+000200130313/* 591-004-0352  NATIONAL CRIME PREVENTION                            */
+000300130313/* SSK 03/13/2013                                                     */
+000400130211/*                                                                    */
+000500130211/* CARRIER CONTROL ID #0000000073 ASSURANT SPECIFIC                   */
+000600130211/*                                                                    */
+000700130211/*                                                                    */
+000800130211/* REMEMBER TO REMOVE TERM RECORDS FROM THE INITIAL RUN THAT FAILED   */
+000900130211/*  FROM THE TERM TRACKER FILE AEB004WF OR AT LEAST DECREMENT COUNT   */
+001000130211/*                                                                    */
+001100130211/*                                                                    */
+001200130211/*                                                                    */
+001300130211             PGM
+001400220817             SNDUSRMSG  MSG(TEST) MSGTYPE(*INFO) TOUSR(JTORRES)
+009000130211
+009100130211             ENDPGM

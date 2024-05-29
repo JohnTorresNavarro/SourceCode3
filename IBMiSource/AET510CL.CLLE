@@ -1,0 +1,66 @@
+000100120229/* SSK  02.29.2012  */
+000200120229/* AETNA STATE SETUP AUDIT EXPORT */
+000300130417/* SSK  04.17.2013 RESET ADDRESSES */
+000301150616/* DLK  06/16/15 - CONVERT TO USE EMAIL GROUP INSTEAD OF THE  */
+000302150616/*                 17 INDIVIDUAL EMAIL ADDRESSES              */
+000400110519
+000500110519             PGM
+000600110519
+000700120229             DCL        VAR(&RECCNT) TYPE(*DEC) LEN(10 0) VALUE(0)
+000800110519
+000900130419             CLRPFM     FILE(CARRSCANAA)
+001000130419             CPYF       FROMFILE(AACODE) TOFILE(CARRSCANAA) +
+001100130419                          MBROPT(*ADD)
+001200130419
+001300120229             CHKOBJ     OBJ(QTEMP/T2000) OBJTYPE(*FILE)
+001400120229             MONMSG     MSGID(CPF9801) EXEC(CRTPF FILE(QTEMP/T2000) +
+001500120229                          RCDLEN(2000) OPTION(*NOSRC *NOLIST))
+001600120229
+001700120229             CLRPFM     FILE(QTEMP/T2000)
+001800120229
+001900121130             CHKOBJ     OBJ(QTEMP/T500) OBJTYPE(*FILE)
+002000121130             MONMSG     MSGID(CPF9801) EXEC(CRTPF FILE(QTEMP/T500) +
+002100121130                          RCDLEN(500) OPTION(*NOSRC *NOLIST))
+002200121130
+002300121130             CLRPFM     FILE(QTEMP/T500)
+002400121130
+002500120229             OVRDBF     FILE(T2000) TOFILE(QTEMP/T2000)
+002600121130             OVRDBF     FILE(T500) TOFILE(QTEMP/T500)
+002700121130             OVRDBF     FILE(AET001WF) TOFILE(AET001WF)
+002800121130             OVRDBF     FILE(CARPLNQ) TOFILE(CARPLNQ)
+002900121130             OVRDBF     FILE(MCOVAPSE) TOFILE(MCOVAPSE)
+003000121130             OVRDBF     FILE(MEMBER) TOFILE(F.MEMBER)
+003100121130             OVRDBF     FILE(ACMUNIQUE) TOFILE(ACMUNIQUE)
+003200121016             OVRDBF     FILE(CARRSCANAA) TOFILE(CARRSCANAA)
+003300121130             OVRDBF     FILE(PLNUNIQUE) TOFILE(PLNUNIQUE)
+003400110519
+003500121130             CALL       PGM(AET512R)
+003600110519
+003700110519             DLTOVR     FILE(*ALL)
+003800110519
+003900120306             RTVMBRD    FILE(QTEMP/T2000) NBRCURRCD(&RECCNT)
+004000120229             IF         COND(&RECCNT = 0) THEN(GOTO CMDLBL(BYPASS))
+004100120229
+004200150616             EFILE      FILE(T2000) LIB(QTEMP) +
+004300150616                          EMAIL('AS400-AET510@GBSIO.NET') +
+004400150616                          TOFILE(AETAU) EXT('.csv') MSGTXT('Aetna +
+004500150616                          Audit By State Set up. Please check the +
+004600150616                          report to see if you have any members +
+004700150616                          that have not been sent because of their +
+004800150616                          state.  Manually enroll them for now. +
+004900150616                          Brandon will request Aetna setup for the +
+005000150616                          new state.')
+007700120229
+007800150616             EFILE      FILE(T500) LIB(QTEMP) +
+007900150616                          EMAIL('AS400-AET510@GBSIO.NET') +
+008000150616                          TOFILE(AETLST) EXT('.csv') MSGTXT('Aetna +
+008100150616                          Mapping By State. This report is for your +
+008200150616                          reference.  It list trust, sub, acct, and +
+008300150616                          plan info. Also the states for Aetna +
+008400150616                          mapping we currently have set up for +
+008500150616                          small group.  If you see a state not +
+008600150616                          setup, contact Brandon or Ron.')
+011400121130
+011500120229 BYPASS:     RCLRSC
+011700140623
+011800110519             ENDPGM

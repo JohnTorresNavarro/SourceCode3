@@ -1,0 +1,31 @@
+000100171003/*======================================================================*/
+000200171003/* CHGCARC - Change Carrier                                             */
+000300171003/*======================================================================*/
+000400171003
+000500171003Pgm
+000600171003
+000700171003Dcl  &continue   *char     1
+000800171003Dcl  &program    *char    10
+000900171003
+001000171003/* Make sure it is running in Genie environment...                      */
+001100171003ChgVar &program 'GBS0013C'
+001200171003Call ChkProfndr Parm(&program &continue)
+001300171003if Cond(&continue *eq 'N') then(+
+001400171003 do)
+001500171003  goto EndPgm
+001600171003EndDo
+001700171003
+001800180105ChgVar &program 'AFAOVRAMTC'
+001900171003call ChkPgmAuth parm(&program &continue)
+002000171003if (&continue *eq 'N') then(+
+002100171003 do)
+002200171003 GoTo EndPgm
+002300171003enddo
+002400171003
+002500171003/* Call program...                                                      */
+002600180105Call afaovramtr
+002700180105
+002800171003EndPgm:
+002900171003EndPgm
+003000171003
+003100171003/*======================================================================*/

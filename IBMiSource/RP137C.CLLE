@@ -1,0 +1,63 @@
+000100971021/*------------------------------------------------------------------*/
+000200160818  RP137C:    PGM        PARM(&FR &TO &TRS &SUB &ACC &SSN)
+000300140109
+000400140109 /*  PARAMETER DEFINITIONS  */
+000500160818             DCL        VAR(&FR) TYPE(*DEC) LEN(8 0)
+000600160818             DCL        VAR(&TO) TYPE(*DEC) LEN(8 0)
+000700160818             DCL        VAR(&TRS) TYPE(*DEC) LEN(4 0)
+000800160818             DCL        VAR(&SUB) TYPE(*DEC) LEN(3 0)
+000900160818             DCL        VAR(&ACC) TYPE(*DEC) LEN(4 0)
+001000160818             DCL        VAR(&SSN) TYPE(*CHAR) LEN(12)
+001100140109
+001200030806             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+001300030806             DCL        VAR(&NBR) TYPE(*CHAR) LEN(10)
+001400030806             DCL        VAR(&JOB) TYPE(*CHAR) LEN(10)
+001500100427             DCL        VAR(&EMAIL) TYPE(*CHAR) LEN(30)
+001600120712             DCL        VAR(&NUMREC) TYPE(*DEC) LEN(10 0)
+001700030711
+001800140109             RTVJOBA    JOB(&JOB) USER(&USER)
+001900140109
+002000140109             CALL       PGM(EMAILRTVL) PARM(&USER &EMAIL)
+002100140109
+002200140114             OVRDBF     FILE(ACCMST) TOFILE(*LIBL/F.ACCMST) SHARE(*NO)
+002300160818             OVRDBF     FILE(RP135WKP) TOFILE(*LIBL/RP135WKP) SHARE(*NO)
+002400160818             OVRDBF     FILE(RP135CSVP) TOFILE(*LIBL/RP135CSVP) +
+002500140109                          SHARE(*NO)
+002600160818             OVRDBF     FILE(RP135CSXP) TOFILE(*LIBL/RP135CSXP) +
+002700140109                          SHARE(*NO)
+002800120719
+002900160818             CLRPFM     FILE(RP135CSVP)
+003000140109
+003100160818             CALL       PGM(RP136R) PARM(&FR &TO &TRS &SUB &ACC &SSN)
+003200140109
+003300160818             EFILE      FILE(RP135CSVP) LIB(*LIBL) EMAIL(&EMAIL) +
+003400160818                          TOFILE(RP135) EXT('.CSV') +
+003500140217                          MSGTXT('Transaction Listing XL file +
+003600140217                          showing all transactions - If this is not +
+003700140217                          needed, simply delete this email.')
+003800120712
+003900140109
+004000160818             CLRPFM     FILE(RP135CSXP)
+004100140109
+004200160818             CALL       PGM(RP136XR) PARM(&FR &TO &TRS &SUB &ACC &SSN)
+004300140109
+004400160818             EFILE      FILE(RP135CSXP) LIB(*LIBL) EMAIL(&EMAIL) +
+004500160818                          TOFILE(RP135X) EXT('.CSV') +
+004600140217                          MSGTXT('Transaction Listing XL file +
+004700140217                          showing only ACA transactions - If this +
+004800140217                          is not needed, simply delete this email.')
+004900140109
+005000140109/****        SNDDST     TYPE(*LMSG) TOINTNET((&EMAIL *PRI)) +
+005100140109                          DSTD('Test RP131') LONGMSG('Testing +
+005200140109                          RP131CL') CFMDEL(*NO) IMPORTANCE(*NORMAL) +
+005300140109                          SNDFMT(*NOTE) SUBJECT('Test RP131x')  ***/
+005400120712
+005500100427
+005600100427
+005700140109 /****       EFILE      FILE(DBCSVP) LIB(QS36F) EMAIL(&EMAIL) +
+005800120712                          TOFILE(DBCSVP) EXT('.CSV') MSGTXT('Here +
+005900140109                          is the DBE Convert exception report.') **/
+006000120712
+006100160818             CLRPFM     FILE(RP135WKP)
+006200140519
+006300971021 END:        ENDPGM

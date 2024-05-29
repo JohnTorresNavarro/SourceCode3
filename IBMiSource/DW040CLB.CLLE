@@ -1,0 +1,98 @@
+000100230329/*===================================================================*/
+000112230518/* DW040CLB - ABR run for Other carriers                             */
+000113230329/*===================================================================*/
+000114230329/* Date         Int  Description                                     */
+000115230329/* ----------   ---  ------------------------------------------------*/
+000116230518/* 05/18/2023   jt   Original creation                               */
+000120230329/*===================================================================*/
+000121230329
+000122230426Pgm
+000123230329
+000127230518Dcl  &SavFName    *char   10
+000128230518Dcl  &Lib         *char   10
+000129230518Dcl  &ABRCode     *char    1
+000130230518Dcl  &SfQDate     *char    6
+000131230518Dcl  &SfQD8YMD    *char    8
+000132230518Dcl  &SfDToYMD    *char    8
+000133230518Dcl  &Text1       *char  200
+000134230518Dcl  &Effc        *char    8
+000135230518Dcl  &Month       *char    2
+000136230518Dcl  &Seq         *char    2
+000138230518Dcl  &Seq1        *char    1
+000139230518
+000140230518
+000141230518/* Get Sequence...                                                   */
+000142230518Call dw084r Parm('NASCO' &Seq1 'G')
+000143230518ChgVar &Seq Value('0' *cat &Seq1)
+000144230518
+001003230518RtvSysVal qmonth &Month
+001005230518ChgVar %sst(&Effc 1 2) &Month
+001006230518ChgVar %sst(&Effc 3 6) '012023'
+001007230518
+001009230518ChgVar &SavFName 'A'
+001010230518ChgVar &ABRCode 'A'
+001011230518
+001012230518
+001013230518RtvObjD F.INVDET ObjType(*file) RtnLib(&Lib)
+001014230518
+001015230518/* Backup before run...                                              */
+001016230518ClrSavF saveabr/&SavFName
+001017230518
+001018230518SavObj Obj(F.INVDET CR130HSO RPA060WK RPAYHIS) LIB(&LIB) DEV(*savf) +
+001019230518       SavF(saveabr/&SavFName) SavAct(*sysdfn)
+001020230518MonMsg cpf0000
+001021230518
+001022230518/* Get current date...                                               */
+001023230518RtvSysVal SysVal(QDATE) RtnVar(&SfQDate)
+001024230518
+001025230518CvtDat Date(&SfQDate) ToVar(&SfQD8YMd) ToFmt(*yymd) ToSep(*none)
+001026230518
+001027230518/* Add 2 days...                                                      */
+001028230518Call dateadd Parm(&SfQD8YMd '002' 'D'  &SfDToYMD)
+001029230518MonMsg cpf0000
+001030230518
+001031230518CvtDat Date(&SfDToYMD) ToVar(&SfDToYMD) FromFmt(*yymd) ToFmt(*mdyy) ToSep(*none)
+001032230518MonMsg cpf0000
+001033230518
+001034230518/* Submit to run in 2 days...                                         */
+001035230518SbmJob Cmd(ClrSavF File(saveabr/&SavFName)) Job(ClrSavF) JobQ(qpgmr) +
+001036230518       ScdDate(&SfDToYMD)
+001037230518
+001038230518ClrPFM anrec
+001039230518
+001040230518ChkObj Obj(&Lib/invdetl3a) ObjType(*file)
+001041230518MonMsg cpf9801 Exec(+
+001042230518 CrtLF File(&Lib/invdetl3a) SrcFile(y2kdds/qddssrc) Option(*nosrc  *nolist))
+001043230518
+001044230518OvrDBF invdetl3 ToFile(invdetl3a) Share(*yes)
+001045230518
+001046230518OvrDBF otrec ToFile(anrec) Share(*yes)
+001047230518
+001048230518/* Old summary of carrier payments for comm schedule 1...             */
+001050230518Call cr130cl
+001051230518
+001052230518/* Commission run...                                                  */
+001054230518Call rpa060clb
+001055230518
+001056230518/* New summary of carrier payments report w/o update to cr130hso....  */
+001059230518Call crt130hcl Parm(&ABRCode 'P' &Effc &Seq)
+001060230518
+001061230518ClrSavF saveabr/aafter
+001062230518
+001063230518SavObj Obj(INVDWK CR132 ANREC) Lib(&Lib) Dev(*savf) SavF(saveabr/aafter)
+001064230518
+001066230518ChgVar &Text1 Value('DW040 Bill file step for schedule: ' || &ABRCode ||  +
+001068230518                    ' Effective: '  || &Effc || ' Sequence: ' || &Seq ||  +
+001069230518                    ' has completed.')
+001070230518
+001071230518eMail Subject('DW040 Bill file step complete') MsgTxt(&Text1)
+001072230518
+001073230518/* Mark completed record in Bill Detail file...                      */
+001074230518Call dw084r Parm('NASCO' &Seq 'U')
+001075230518
+001076230518
+001120230329/* End of program */
+001121230329EndPgm:
+001122230329EndPgm
+001123230329
+001124230329/*===================================================================*/

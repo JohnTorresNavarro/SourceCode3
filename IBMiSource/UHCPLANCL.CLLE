@@ -1,0 +1,36 @@
+000100200219/*============================================================================*/
+000200200219/* IHCPLANCL - UHC Create Mapping Plans - PRIME                               */
+000300200219/*============================================================================*/
+000400200219/* Date       Int  Description                                                */
+000500200219/* --------   ---  -----------------------------------------------------------*/
+000600200219/* 02/19/20   jt   Original creation                                          */
+000700200219/*                                                                            */
+000800200219/*============================================================================*/
+000900200218
+001000200311Pgm parm(&month)
+001100200219
+001200200219Dcl  &Records   *dec   (10 0)
+001300200311Dcl  &month     *char    2
+001400200219
+001500200309OvrDBF caraccp gbsdtat/caraccp FrcRatio(1)
+001600200312OvrDBF carplnz gbsdtat/carplnz FrcRatio(1)
+001700200219
+001800200219RtvMbrD uhcplancr1 NbrCurRcd(&Records)
+001900200219if (&Records = 0) then(+
+002000200219 do)
+002100200219 goto endpgm
+002200200219EndDo
+002300200219
+002400200311Call uhcplanc &month
+002500200218
+002600200218/* Send errors back to user, if any...                                        */
+002700200311SQL2Eml SQLStmt('select cptrst, cpsub#, cpacct, cpplan from carplnp where +
+002800200311                cpuniq = ''9000000290'' and cpcid5 = ''ERROR'' or cpuniq = +
+002900200311               ''0000000290'' and cpcid5 = ''ERROR''') +
+003000200311               ToXLS(MAPPINGERRORS.XLS) +
+003100200311               eMail(jtorres@gbsio.net) Subj('UHC Prime Mapping Errors')
+003200200218/* End of program */
+003300200218EndPgm:
+003400200218EndPgm
+003500200218
+003600200218/*============================================================================*/

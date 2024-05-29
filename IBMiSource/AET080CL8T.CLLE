@@ -1,0 +1,80 @@
+000100160415/*====================================================================*/
+000200110606/* AETNA EXPORT                                                       */
+000300110802/* 563-006-0013  THE MARYLAND PEDIATRIC GROUP LLC                     */
+000400110802/* 770-004-0031  IT OBJECTS LLC                                       */
+000500110802/* 825-006-0025  HEALTHSOURCE DISTRIBUTORS LLC                        */
+000600110802/* 900-006-0073  JOPPA AUTOMOTIVE TRANSMISSIONS INC                   */
+000700110802/* 900-006-0074  AUSTIN AND GRIEG MASONRY INC                         */
+000800110802/*                                                                    */
+000900160415/*====================================================================*/
+001000110802/*                                                                    */
+001100110802/* SSK 08/02/2011                                                     */
+001200110606/*                                                                    */
+001300110802/* CARRIER CONTROL ID #0000000011 AETNA                               */
+001400110606/*                                                                    */
+001500160415/*====================================================================*/
+001600110223/*                                                                    */
+001700110223/* REMEMBER TO REMOVE TERM RECORDS FROM THE INITIAL RUN THAT FAILED   */
+001800110802/*  FROM THE TERM TRACKER FILE AET081WF                               */
+001900110223/*                                                                    */
+002000160415/*====================================================================*/
+002100160415
+002200160601Pgm
+002300101213
+003600221208/* runsql 'delete from gbsdtat/aet081wf where nttransdt = 20221208' + */
+003601221208/* Commit(*None)                                                         */
+003602221208
+003603221208/* cpyf qs36f/aet080wds gbsdtat/aet080wds mbropt(*replace) */
+003604221208
+003700180924ClrPfM aet080wf
+003800180924ClrPFM aet080wd
+003900180924ClrPFM aet080wh
+004000171017
+004100160809/* One time condition...                                        */
+004200161007/* RtvJobA cymddate(&cymd)      */
+004300161007/* ChgVar &mmdd %sst(&cymd 4 4) */
+004400160809
+004500161007/* if (&mmdd = '0812') then(+   */
+004600161007/*  do)                         */
+004700161007/*   ClrPFM aet080wds           */
+004800161007/*   ClrPFM aet080wdsh          */
+004900161007/*  EndDo                       */
+005000160809
+005100221208OvrDbF memac#1 f.memac#1
+005200221208OvrDbF depndc f.depndc
+005300221208OvrDbF pcpl1 f.pcpl1
+005400160414
+005800160801ChgPF aet080wd FRcRatIO(1)
+005900160204
+006000160222/* Call pgm to create flat file...                              */
+006100160809/* ChgCurLib *crtdft */
+006200160809Call aet084r834
+006300160224
+006400160224/* Call pgm to create flat file (VIS)...                        */
+006500160415Call aet084rv
+006600160222
+006700160222/* Call pgm to create DB file from flat file...                 */
+006800160801Call aet084br
+006900160204
+007000160415RgzPFM aet080wd
+007100101213
+007200160601/* Call pgm to check to see if it is add/change/term            */
+007300160601Call aet084br2
+007400160204
+007500160428/* Call pgm to get changes and send other members/depts...      */
+007600160804/* Call aet084rh */
+007700161006/* Call aet084rh2 */
+007800161006Call aet084rh3
+007900160428
+008000171017test:
+008100171017
+008200160609/* Add records to history file...                               */
+008501221208
+008502221208Sql2Eml  SqlSTMT('select * from aet080wd') +
+008503221208         ToXLS('/tmp/aetnarecords.xls') SUBJ('Aetna Records')
+008504221208
+008505221208
+012800160526EndPgm:
+012900160415EndPgm
+013000160415
+013100160415/*====================================================================*/

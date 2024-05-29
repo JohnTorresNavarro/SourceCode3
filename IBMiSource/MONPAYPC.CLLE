@@ -1,0 +1,57 @@
+000100980824/*------------------------------------------------------------------*/
+000200071106/* MONPAYPC       GROUP BENEFIT SERVICES SOFTWARE           2007    */
+000300071106/*               **  MONITOR PAYMENT POSTING IF NOT ZERO BALANC **  */
+000400990727/*                                                                  */
+000500071106/* 11/6/07 SZZ - INITIAL VERSION.                                   */
+000600990727/*                                                                  */
+000700980824/*------------------------------------------------------------------*/
+000800000825             PGM
+000900980824
+001000110601             DCL        VAR(&SMANCD) TYPE(*CHAR) LEN(3)
+001100150527             CLRPFM     FILE(jtorres/MONPPXL)
+001200150527             CLRPFM     FILE(jtorres/MONPPRL)
+001300150527             CLRPFM     FILE(jtorres/MONBDEL)
+001400150605             OVRDBF     FILE(SMAN) TOFILE(QS36F/F.SMAN) SHARE(*YES)
+001500150605             OVRDBF     FILE(SMAN2L) TOFILE(QS36F/F.SMAN2L) SHARE(*YES)
+001600110601
+001700150515             ADDLIBLE   LIB(RPG_WORD) POSITION(*LAST) /* Needed for Urgent Lette
+001800150515             monmsg cpf0000
+001900150515
+002000071106             CALL       PGM(MONPAYPR)
+002100110601
+002200150603             GOTO       CMDLBL(calljohn)
+002300150603
+002400110601             CHGVAR     VAR(&SMANCD) VALUE('ALL')
+002500110601             CALL       PGM(MONBDC01C) PARM(&SMANCD)
+002600050304
+002700150515
+002800100505             EFILE      FILE(MONPPXL) EMAIL(TADAMS@GBSIO.NET) +
+002900100505                          TOFILE(MONPAP) EXT('.CSV') +
+003000100505                          MSGTXT('PAYMENT POSTING NON-ZERO BALANCES +
+003100100505                          (MONPAYPC)')
+003200080415
+003300100505             EFILE      FILE(MONPPXL) EMAIL(WABESHOUSE@GBSIO.NET) +
+003400100505                          TOFILE(MONPAP) EXT('.CSV') +
+003500100505                          MSGTXT('PAYMENT POSTING NON-ZERO BALANCES +
+003600100505                          (MONPAYPC)')
+003700080804
+003800100505             EMAIL      SUBJECT('CLIENT FIRST URGENT NOTICES') +
+003900100505                          MSGTXT('Client First Urgent Notices have +
+004000100505                          been generated using RPGWORD in the +
+004100100505                          /letters folder. Please print and deliver +
+004200100505                          to Wendy Abeshouse.') +
+004300100505                          EMAIL(AS400OPERATORS@GBSIO.NET)
+004400110429
+004500110429 /* RUN LETTERS */
+004600110429
+004700110429 /* RUN FIRST LETTER */
+004800110429             CALL       PGM(PRTHAUL01R) PARM('1')
+004900110429
+005000121115 /* RUN CC LETTER - BROKERS */
+005100110429             CALL       PGM(PRTHAUL01R) PARM('2')
+005200121115
+005300121115 /* RUN CC LETTER - WI SALES AND MARKETING */
+005400130205/******      CALL       PGM(PRTHAUL01R) PARM('3')   NOT YET USED***/
+005500050304
+005600150603calljohn:
+005700980824 END:        ENDPGM

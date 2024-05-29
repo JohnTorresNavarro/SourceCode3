@@ -1,0 +1,53 @@
+000100180824/*======================================================================*/
+000200181019/* NASCO - CFI - Nasco Xpt file (Joseph Smith)                          */
+000300180824/*======================================================================*/
+000400180824/* Date        Int  Decription                                          */
+000500180824/* ----------  ---  ----------------------------------------------------*/
+000600180824/* 08/24/2018  jt   Original Creation                                   */
+000700220329/* 07/23/2019  br   Using the IFS instead of i:\mis\carrier_Ftp         */
+000701220329/* 03/29/2022  jt   New name for 1350 files                             */
+000702221129/* 11/29/2022  jt   Added the Medicare hold file to be clealed          */
+000800180824/*======================================================================*/
+000900180824
+001000180824Pgm
+001100190822
+001200220329Dcl    &Date20   *char   20
+001300220329Dcl    &Date     *char    8
+001301220329Dcl    &Time     *char    6
+001400220329Dcl    &ToSTMF   *char  100
+001500190822
+001700180824ClrPFM nascoahead
+001800180824ClrPFM nascoatral
+001900180824ClrPFM nascodtl
+002000180824ClrPFM nascodtlf
+002100180824ClrPFM nascoheadr
+002200180824ClrPFM nascotrail
+002201221129ClrPFM nascodmedi
+002300180824
+002400180824/* Call program to do file header...                                    */
+002500180824Call nasco009r 'FILEHEADER'
+002600180824CpyF nascoheadr nascodtlf mbropt(*replace) fmtopt(*nochk)
+002700180824
+002800180824/* Call program to do account header...                                 */
+002900180824Call nasco009r 'ACCTHEADER'
+003000180824CpyF nascoahead nascodtlf mbropt(*add) fmtopt(*nochk)
+003100081103
+003200180824/* Call program to do export file...                                    */
+003300190917Call nasco010r
+003400180824CpyF nascodtl nascodtlf mbropt(*add) fmtopt(*nochk)
+003500180824
+003600180824/* Call program to do account trailer...                                */
+003700180824Call nasco009r 'ACCTTRAILER'
+003800180824CpyF nascoatral nascodtlf mbropt(*add) fmtopt(*nochk)
+003900180824
+004000180829/* Call program to do file trailer...                                   */
+004100180824Call nasco009r 'FILETRAILER'
+004200180824CpyF nascotrail nascodtlf mbropt(*add) fmtopt(*nochk)
+004201221129
+004202221130SQL2EML    SQLSTMT('select * from nascodtl') +
+004203221130           TOXLS('/tmp/nasco.xls') SUBJ('Nasco')
+004300180824
+005600180824EndPgm:
+005700180824EndPgm
+005800180824
+005900180824/*======================================================================*/

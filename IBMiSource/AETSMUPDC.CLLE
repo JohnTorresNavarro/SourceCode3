@@ -1,0 +1,38 @@
+000100190401/*===================================================================*/
+000200200318/* AETDMUPDC - Aetna - File Upload - Small groups                    */
+000300190401/*===================================================================*/
+000400190401/* Date       Int  Description                                       */
+000500190401/* --------   ---  --------------------------------------------------*/
+000600200318/* 03/18/20   jt   Original creation                                 */
+000700190401/*                                                                   */
+000800190401/*===================================================================*/
+000900190401
+001000190401Pgm
+001100190401
+001200200316Dcl  &Records   *dec    (10 0)
+001300190401
+001400190401/* Copy records from IFS mapped folder to file...                             */
+001500200318CpyFrmImpF FromStmF('/tmp/aetsm.csv') ToFile(*libl/aetsm) +
+001600200318           MbrOpt(*replace) RcdDlm(*all) StrDlm(*none) RmvBlank(*none) +
+001700200318           FldDlm(',') FromRcd(2) RplNullVal(*flddft)
+001800200316
+001900200325OvrDBF caraccp gbsdtat/caraccp FrcRatio(1)
+002000200325OvrDBF carplnz gbsdtat/carplnz FrcRatio(1)
+002100200316
+002200200316call aetsmcrtr
+002300200316
+002400200316RtvMbrD aetsm NbrCurRcd(&Records)
+002500200316if (&Records = 0) then(+
+002600200316 do)
+002700200316 goto endpgm
+002800200316EndDo
+002900190401
+003000190401/* Send errors back to user, if any...                                        */
+003100200316  SQL2Eml 'select * from aetsm' ToXLS(actsm.xls) +
+003200200325        eMail(*current) Subj('Records that were not updated')
+003300190401
+003400190401/* End of program */
+003500190401EndPgm:
+003600190401EndPgm
+003700190401
+003800190401/*===================================================================*/

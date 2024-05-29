@@ -1,0 +1,61 @@
+000100040614/*------------------------------------------------------------------*/
+000200040614/* TR040CL        GROUP BENEFIT SERVICES SOFTWARE           2004    */
+000300040614/*                                                                  */
+000400040614/*         WRITTEN BY - KIMBERLY S. JOHNSON                         */
+000500040614/*         DATE       -  6/14/04                                    */
+000600040614/*                                                                  */
+000700040614/*            THIS CL PROGRAM IS USED TO CALL TR040 -               */
+000800040614/*            ACCOUNT ADJUSTMENT                                    */
+000900040614/*                                                                  */
+001000040614/*     (CONVERTED FROM QS36PRC/TR040)                               */
+001100040614/*                                                                  */
+001200040901/* 09/01/04 DLK - ADD ABR CHECK                                     */
+001300040915/* 09/15/04 DLK - REINSTATE PASSWORD CHECK                          */
+001400140105/* 01/05/14 DLK - ADD DEPEND FILE                                   */
+001500140108/* 01/08/14 DLK - TEMPORARY CHANGE TO USE PROCESS PASSWORD INSTEAD  */
+001600140108/*                OF MANAGEMENT PASSWORD (CINDY W REQUEST)          */
+001700040614/*                                                                  */
+001800040614/*                                                                  */
+001900040614/*------------------------------------------------------------------*/
+002000011227
+002100040614             PGM
+002200040614
+002300040614             DCL        VAR(&PREFIX) TYPE(*CHAR) LEN(1)
+002400040614             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+002500040614             DCL        VAR(&CONAME) TYPE(*CHAR) LEN(40)
+002600040901             DCL        VAR(&ABRSTAT) TYPE(*CHAR) LEN(1)
+002700011227
+002800040901/* DO NOT ALLOW ACCESS IF THE ABR JOB HAS NOT COMPLETED */
+002900040901
+003000040901             CALL       PGM(CHKABRCL) PARM(&ABRSTAT)
+003100040901             IF         COND(&ABRSTAT = 'R') THEN(RETURN)
+003200040901
+003300140108  /*         STRS36PRC  PRC(PASS) PARM(M)    */
+003400140108             STRS36PRC  PRC(PASS) PARM(P)
+003500040915             MONMSG     MSGID(SSP0010) EXEC(RETURN)
+003600040810
+003700040618             RTVDTAARA  DTAARA(COMPANY (45 1)) RTNVAR(&PREFIX)
+003800040622             RTVDTAARA  DTAARA(COMPANY (1 40)) RTNVAR(&CONAME)
+003900040614
+004000040614             RTVJOBA    USER(&USER)
+004100011227
+004200040614             CHGDTAARA  DTAARA(*LDA (1 10)) VALUE(&USER)
+004300040618             CHGDTAARA  DTAARA(*LDA (201 40)) VALUE(&CONAME)
+004400011227
+004500040614             OVRDBF     FILE(ACCMST) TOFILE(F.ACCMST)
+004600040614             OVRDBF     FILE(HIST) TOFILE(F.HIST)
+004700040614             OVRDBF     FILE(MEMBER) TOFILE(F.MEMBER)
+004800140105             OVRDBF     FILE(DEPNDC) TOFILE(F.DEPNDC)
+004900040614             OVRDBF     FILE(TRSMST) TOFILE(F.TRSMST)
+005000040809             OVRDBF     FILE(CARMST) TOFILE(F.CARMST)
+005100040614             OVRDBF     FILE(INVDET) TOFILE(F.INVDET)
+005200040614             OVRDBF     FILE(PLNMST) TOFILE(F.PLNMST)
+005300040614             OVRDBF     FILE(CODES) TOFILE(F.CODES)
+005400040614             OVRDBF     FILE(GRATE) TOFILE(F.GRATE)
+005500040614             OVRDBF     FILE(HISTAA) TOFILE(F.HISTAA)
+005600011227
+005700040615             CALL       PGM(TR040R)
+005800011227
+005900011227             DLTOVR     FILE(*ALL)
+006000011227
+006100020109 END:        ENDPGM

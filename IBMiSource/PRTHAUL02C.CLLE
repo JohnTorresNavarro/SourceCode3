@@ -1,0 +1,39 @@
+000100000000/*____________________________________________________________________________*/
+000200000000/*                                                                            */
+000300071128/*  Description:  Process Letter +
+000400000000/*                                                                            */
+000500000000/*  (c)Copyright 2005 by Innovative Outsourcing, Inc.                     */
+000600000000/*                                                                            */
+000700071129/*    Created by:  JALLEN - November 28, 2007 +
+000800110428/*    Modified by: SZIEN  - April 28, 2011 +
+000900110428/*                 Add group broker and sman file for cc on letter. +
+001000000000/*____________________________________________________________________________*/
+001100000000
+001200110429             PGM        PARM(&WDTA &WRUN)
+001300000000
+001400110429             DCL        VAR(&WDTA) TYPE(*CHAR) LEN(560)
+001500110429             DCL        VAR(&WRUN) TYPE(*CHAR) LEN(1)
+001600050126
+001700071128             CPYFRMIMPF +
+001800071128                          FROMSTMF('/rpg_word/templetes/HA_COLLECT/ha+
+001900150515                          _urgent.html') TOFILE(JTORRES/PRTHAULIN) +
+002000071128                          MBROPT(*REPLACE) RCDDLM(*CR) DTAFMT(*DLM) +
+002100071128                          STRDLM(*NONE) RMVBLANK(*NONE) FLDDLM('|')
+002200130603             MONMSG     MSGID(CPF0000)
+002300110429
+002400110429             CPYFRMIMPF +
+002500110429                          FROMSTMF('/rpg_word/templetes/HA_COLLECT/CC+
+002600150515                          _LETTER.htm') TOFILE(jtorres/PRTHAUINCC) +
+002700110429                          MBROPT(*REPLACE) RCDDLM(*CR) DTAFMT(*DLM) +
+002800110429                          STRDLM(*NONE) RMVBLANK(*NONE) FLDDLM('|')
+002900130603             MONMSG     MSGID(CPF0000)
+003000050126
+003100150515             CLRPFM     FILE(jtorres/PRTHAULOUT)
+003200050126
+003300110428             OVRDBF     FILE(GRPBRK) TOFILE(LUMDTAL/GRPBRK)
+003400110428             OVRDBF     FILE(SMAN) TOFILE(*LIBL/F.SMAN)
+003500110429             CALL       PGM(PRTHAUL03R) PARM(&WDTA &WRUN)
+003600050126
+003700050126             RCLRSC
+003800000000
+003900000000             ENDPGM

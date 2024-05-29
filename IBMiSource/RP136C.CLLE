@@ -1,0 +1,15 @@
+000100971021/*------------------------------------------------------------------*/
+000200160818  RP136C:    PGM        PARM(&FR &TO &TRS &SUB &ACC &SSN)
+000300140109
+000400140109 /*  PARAMETER DEFINITIONS  */
+000500160818             DCL        VAR(&FR) TYPE(*DEC) LEN(8 0)
+000600160818             DCL        VAR(&TO) TYPE(*DEC) LEN(8 0)
+000700160818             DCL        VAR(&TRS) TYPE(*DEC) LEN(3 0)
+000800160818             DCL        VAR(&SUB) TYPE(*DEC) LEN(3 0)
+000900160818             DCL        VAR(&ACC) TYPE(*DEC) LEN(4 0)
+001000160818             DCL        VAR(&SSN) TYPE(*CHAR) LEN(12)
+001100140109
+001200160818             SBMJOB     CMD(CALL PGM(RP137C) PARM(&FR &TO &TRS &SUB +
+001300140110                          &ACC &SSN))
+001400120712
+001500971021 END:        ENDPGM

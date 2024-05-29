@@ -1,0 +1,77 @@
+000100150529/*============================================================================*/
+000200150529/* GROUP BENEFIT SERVICES SOFTWARE                                            */
+000300150529/*                                                                            */
+000400150529/* Kathleen Thompson's PCORI Report.                                          */
+000500150529/*                                                                            */
+000600150529/* RPG program uses hardcode date values. This program runs once a year.      */
+000700150529/* T2000 file is Detail. T500 file is Summary.                                */
+000800150529/*                                                                            */
+000900150529/*============================================================================*/
+001000150529/* Date        Name       Description                                         */
+001100150529/* ----------  ---------  ----------------------------------------------------*/
+001200150529/* 05/09/2013  SSK        Initial version                                     */
+001300150529/*                                                                            */
+001400150529/* 05/28/2015  J Torres   Eliminated hardcoded date values on RPGLE. Changed  */
+001500150610/*                        files to be used in QTEMP. Added entry parm here    */
+001600150610/*                        and in RPGLE. If parm is blank it will run RPGLE    */
+001700150610/*                        as User category of "PBG". If not blank it will use */
+001800150610/*                        the user category passed with the plan.             */
+001900150529/*============================================================================*/
+002000150529
+002100150610Pgm parm(&UserCat &Plan)
+002200150610
+002300150610Dcl  &UserCat  *char  3
+002400150610Dcl  &Plan     *char  4
+002500130508
+002600150529/* Check QTEMP, if not create and override...                                 */
+002700150529ChkObj qtemp/T2000 ObjType(*file)
+002800150529 MonMsg CPF9801 EXEC(+
+002900150529  do)
+003000150529   CrtDupObj T2000 FromLib(y2kdds) ObjType(*file) ToLib(qtemp)
+003100150529  EndDo
+003200150529
+003300150529/* Check QTEMP, if not create and override...                                 */
+003400150529ChkObj qtemp/T500 ObjType(*file)
+003500150529 MonMsg CPF9801 EXEC(+
+003600150529  do)
+003700150529   CrtDupObj T500 FromLib(gbspgm) ObjType(*file) ToLib(qtemp)
+003800150529  EndDo
+003900150529
+004000150529OvrDbF T2000 QTEMP/T2000
+004100150529OvrDbF T500 QTEMP/T500
+004200150529OvrDbF DEPNDC QS36F/F.DEPNDC
+004300150529OvrDbF GRAT24 QS36F/F.GRAT24
+004400150529OvrDbF SMANSP QS36F/SMANSP
+004500150529OvrDbF PLNUNIQUE QS36F/PLNUNIQUE
+004600150529OvrDbF CMCTPLAN QS36F/CMCTPLAN
+004700150529OvrDbF ACMUNIQUE QS36F/ACMUNIQUE
+004800150529OvrDbF AC2MSTL2 QS36F/AC2MSTL2
+004900150529OvrDbF MCOVAPSE QS36F/MCOVAPSE
+005000150529OvrDbF DCOV22 QS36F/F.DCOV22
+005100150529OvrDbF MEMAC#1 QS36F/F.MEMAC#1
+005200150529
+005300150529ClrPFM qtemp/T2000
+005400150529ClrPFM qtemp/T500
+005500150529
+005600150610if (&UserCat *GT ' ') then(+
+005700150610 do)
+005800150610 Call pcori (&UserCat &Plan)
+005900150610Enddo
+006000150529
+006100150610if (&UserCat *eq ' ') then(+
+006200150610 do)
+006300150610 Call pcori
+006400150610Enddo
+006500150610
+006600150529eFile File(T2000) Lib(qtemp) eMail(kthompson@gbsio.net) ToFile(PCORI1) +
+006700150529                  Ext('.csv') MsgTxt('Detail Report')
+006800150529
+006900150529eFile File(T500) lib(qtemp) eMail(kthompson@gbsio.net) ToFile(PCORI2) +
+007000150529                 Ext('.csv') MsgTxt('Summary Report')
+007100150529
+007200150529DltOvr *all
+007300150529
+007400150529EndPgm:
+007500150529EndPgm
+007600150529
+007700150529/*============================================================================*/

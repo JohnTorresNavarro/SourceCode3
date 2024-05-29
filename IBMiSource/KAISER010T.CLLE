@@ -1,0 +1,91 @@
+000100170317/*===================================================================*/
+000200181109/* Kaiser - Generate extract                                         */
+000300170317/*===================================================================*/
+000400180226/* Date       Int  Description                                       */
+000500180226/* --------   ---  --------------------------------------------------*/
+000600181109/* 11/06/18   jt   Original creation                                 */
+000700191002/* 10/02/2019 jt   Temporary change to re-send records to Kaiser     */
+000800180226/*===================================================================*/
+000900170316
+001000170316Pgm
+001100180220
+001200181227Dcl  &Records   *dec   (10 0)
+001300181227Dcl  &FullFile  *char    1
+001400201215
+001500180822/* Clear file for extracts...                                        */
+001600181108ClrPFM kaiserhdr
+001700181106ClrPFM kaiserdtl
+001800181108ClrPFM kaiserdtlf
+001900181108ClrPFM kaisertrl
+002000181108ClrPFM kaiserdtlx
+002100181108ClrPFM kaiserhld
+002200181227
+002300180822/* Create extract...                                                 */
+002400201215Call kaiser010x
+002500201215goto endpgm
+002600201215
+002700181227/* Check to see if we send a full file instead...                    */
+002800181231Call kaisermon &FullFile
+002900181227If (&FullFile = 'Y') then(+
+003000181227 Do)
+003100181227  CpyF kaiserdtl kaiserdtlx mbropt(*replace) fmtopt(*nochk)
+003200181227  Goto FullFile
+003300181227enddo
+003400181227
+003500181227/* ...if not full file do transactional file...                      */
+003600181108Call kaiser011r
+003700170316
+003800181227FullFile:
+003900181227/* Check if file has any records...                                  */
+004000181109RtvMbrD kaiserdtlx NbrCurRcd(&Records)
+004100181228If (&Records = 0) then(+
+004200181228 Goto EndPgm)
+004300181109
+004400191002/* ftpfile: */
+004500181109/* Create flat file to send...                                       */
+004600181108Call kaiser009r 'FILEHEADER'
+004700181108CpyF kaiserhdr kaiserdtlf mbropt(*replace) fmtopt(*nochk)
+004800181108CpyF kaiserdtlx kaiserdtlf mbropt(*add) fmtopt(*nochk)
+004900181108
+005000181108Call kaiser009r 'FILETRAILER'
+005100181108CpyF kaisertrl kaiserdtlf mbropt(*add) fmtopt(*nochk)
+005200181108
+005300181108/* Send file to IFS folder...                                           */
+005400181113ChkObj Obj(QTEMP/IOFTPSC0) OBJTYPE(*file)
+005500181108MonMsg MsgID(CPF9801) EXEC(+
+005600181108 CrtPf File(qtemp/IOFTPSC0) SrcFile(gbspgm/qddssrc) +
+005700181113            Option(*nosrc *nolist))
+005800181108
+005900181108ClrPFM qtemp/IOFTPSC0
+006000181108
+006100181108OvrDBF IOFTPSC0 ToFile(qtemp/IOFTPSC0)
+006200181108
+006300181108ClrPFM gbspgm/qtxtsrc Mbr(LOGKAIRPRT)
+006400181108
+006500181109/* Create FTP script...                                                 */
+006600181108Call kaiser001r
+006700181108
+006800181108CpyF qtemp/IOFTPSC0 gbspgm/qtxtsrc ToMbr(CMFKAIRPRT) +
+006900181113     MbrOpt(*replace) FmtOpt(*cvtsrc)
+007000181108
+007100181108OvrDbF Input ToFile(gbspgm/qtxtsrc) Mbr(CMFKAIRPRT)
+007200181108
+007300181113OvrDBF Output ToFile(gbspgm/qtxtsrc) Mbr(LOGKAIRPRT)
+007400181108
+007500181108FTP RmtSys(loopback)
+007600181108
+007700181108DltOvr File(Input Output)
+007800180822
+007900181228If (&FullFile = 'Y') then(+
+008000181228 Goto EndPgm)
+008100190326/* goto endpgm */
+008200181108/* Save the last detail file to compare records for next time...        */
+008300181108cpyf kaiserdtl kaiserdtls mbropt(*replace)
+008400181108
+008500181108/* Save all the records for history...                                  */
+008600181108cpyf kaiserdtl kaiserdtlh mbropt(*add) fmtopt(*nochk)
+008700181108
+008800180822EndPgm:
+008900170421EndPgm
+009000170316
+009100170317/*===================================================================*/

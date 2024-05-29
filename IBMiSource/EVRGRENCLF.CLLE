@@ -1,0 +1,102 @@
+000100160201/*==============================================================*/
+000200170214/* Evergreen Valance Eligibility File - Full Recon file         */
+000300160201/*==============================================================*/
+000400160201/*                                                              */
+000500160201/* Date         Name         Description                        */
+000600160201/* ----------   -----------  -----------------------------------*/
+000700160629/* 06/29/2016   J. Torres    Original file                      */
+000800160427/*                                                              */
+000900170223/* 02/23/2017   J. Torres    Added call to Sendhios instead of  */
+001000170223/*                           running it from Robot              */
+001100170223/*                                                              */
+001200170223/*==============================================================*/
+001300160201
+001400150723Pgm
+001500140909
+001600151029Dcl    &Records   *Dec   (10 0)
+001700151118Dcl    &Records2  *Dec   (10 0)
+001800160629Dcl    &HoldRel   *Char   1
+001900151029
+002000160427RtvDtaAra DtaAra(EvgHRDta (1 1)) RtnVar(&HoldRel)
+002100160427if (&HoldRel *eq 'Y') then(+
+002200160427 do)
+002300160629  goto EndPgm
+002400160427EndDo
+002500160427
+002600170223/* Check to see if there are missing HIOS...                    */
+002700170223Call sendhios ' '
+002800170223
+002900151118/* File TEMPTBL2 will determine if plans have been entered with */
+003000151118/* no Carrier Plan ID. Enter id in HIOSXREF and rerun job       */
+003100170223/* EVRGRENVAF from Robot to get the file ready for              */
+003200170223/* transmission.                                                */
+003300151118
+003400151118RtvMbrD TEMPTBL2 NbrCurRcd(&Records2)
+003500151118 if (&Records2 = 0) then(goto Continue)
+003600151118 if (&Records2 > 0) then(goto HIOSError)
+003700151118
+003800151118Continue:
+003900151118
+004000151023ClrPFM EVRGRENCTV
+004100150723
+004200170113dltf qtemp/EVRGRENXP2
+004300170113monmsg cpf0000
+004400170113
+004500160708CrtDupObj Obj(EVRGRENXPN) FromLib(*libl) ObjType(*file) +
+004600160708          ToLib(qtemp) NewObj(EVRGRENXP2) Data(*yes)
+004700160708
+004800151023ClrPFM EVRGRENXPN
+004900151020
+005000160707ClrPFM EVRGRENXPF
+005100160707
+005200151023ClrPFM EVRGRENXPH
+005300151020
+005400170112ClrPFM HIOSERROR
+005500170112
+005600151020Call EVRGSUPCLV
+005700140909
+005800151023RunQry EVERGREENV
+005900140909
+006000151023CpyF EVERGREENV EVRGRENCTV MBROPT(*Replace) +
+006100151023     FmtOpt(*NOCHK)
+006200151020
+006300150723OvrDBF DEPNDC ToFile(qs36f/F.DEPNDC)
+006400150723OvrDBF CODESL1 ToFile(qs36f/F.CODESL1)
+006500150723OvrDBF MEMAC#1 ToFile(qs36f/F.MEMAC#1)
+006600140904
+006700151023Call EVRGRENRP2
+006800170112
+006900160707CpyF EVRGRENXPN EVRGRENXPF MbrOpt(*replace)
+007000160707
+007100170113Call EVRGRENFIX
+007200170113
+007300160708RunSql 'update evrgrenxpf set evtrncode = ''030''' Commit(*None)
+007400160708
+007500170117RunSql 'delete evrgrenxpf where evssndep > ''  '' +
+007600170117       and evplancd = ''  ''' Commit(*None)
+007700170113
+007800170124Call EVG0002R6
+007900170214
+008000170214Call EVG0002R8
+008100170124
+008200160708CpyF EVRGRENXP2 EVRGRENXPN MbrOpt(*replace)
+008300170113
+008400150723DltOvr *All
+008500160708
+008600151029SndMsgRc:
+008700160714eMail SUBJECT('Evergreen Recon file is ready') +
+008800160714      MSGTXT('Full Recon File has been produced.') +
+008900170119      EMAIL(jtorres@gbsio.net)
+009000151118
+009100160714GoTo EndPgm
+009200160714
+009300160629HIOSError:
+009400160629eMail SUBJECT('HIOS Error') +
+009500160629      MSGTXT('HIOS missing from Plan.') +
+009600160629      EMAIL(jtorres@gbsio.net)
+009700160629
+009800151020EndPgm:
+009900151020EndPgm
+010000151020
+010100151020/*=================================================*/
+010200151020

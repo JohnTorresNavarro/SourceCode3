@@ -1,0 +1,41 @@
+000100161007/*----------------------------------------------------------------------------*/
+000200161007/*                                                                            */
+000300180122/*  Program....: INQ008C                                                      */
+000400161007/*  Programmer.: Brian Rees                                                   */
+000500180122/*  Date:......: 01/22/2018                                                   */
+000600161007/*                                                                            */
+000700161007/*  Description:                                                              */
+000800180122/*   This program will open up the invoice folder stored at:                  */
+000900190612/*   \\invoicesvc.gbsio.int\                                                  */
+001000190612/*             Compleodata\INVOICES\FULLYINSRD\                               */
+001100180122/*                                                                            */
+001200180122/*   Inorder to get this to work from Profound Logic we have to:              */
+001300180122/*     1. In Genie Administrator:  General Settings                           */
+001400180122/*        Use PC Command Listener: true                                       */
+001500180122/*     2. Must install the pccommand Listener on each machine that            */
+001600180122/*        needs to run this program                                           */
+001700180122/*        www.profoundlogic.com/docs/display/PUI/PC+Integration+API           */
+001800180122/*                                                                            */
+001900161007/*----------------------------------------------------------------------------*/
+002000180122             PGM ( &Folder )
+002100171110
+002200171109
+002300171109/*-----------------------------------------------------------------*/
+002400171109/*Declarations                                                    */
+002500171109/*-----------------------------------------------------------------*/
+002600191030             DCL        VAR(&Folder) TYPE(*Char) LEN(500)
+002700191030             DCL        VAR(&Cmd)    TYPE(*Char) LEN(525)
+002800171109
+002900171109
+003000171109/*-----------------------------------------------------------------*/
+003100171109/*Main Program                                                    */
+003200171109/*-----------------------------------------------------------------*/
+003300180122             STRPCO
+003400180122             MONMSG     MSGID(CPF0000)
+003500180122
+003600180122
+003700190717             CHGVAR     VAR(&CMD) VALUE('Start ' || &FOLDER)
+003800180122             STRPCCMD   PCCMD(&CMD) PAUSE(*NO)
+003900180122
+004000161007
+004100161007 ENDPGM:     ENDPGM

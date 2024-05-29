@@ -1,0 +1,58 @@
+000100180803/*============================================================================*/
+000200000000/*                                                                            */
+000300180803/*  Description:  PROMPT FOR LUMINX M&T BANK FILES +                          */
+000400000000/*                                                                            */
+000500180803/*  (c)Copyright 2013 by GBS, Inc.                                            */
+000600000000/*                                                                            */
+000700180803/*    CLONED FROM JALLEN TEMPLATE by:  SZIEN - Jan 7, 2013 +                  */
+000800180803/*============================================================================*/
+000900000000
+001000180803Pgm Parm(&Grp &Date1 &Date2 &BankCode)
+001100010131
+001200180803Dcl  &JobType    *char      1
+001300180803Dcl  &UsrPrf     *char     10
+001400180803Dcl  &Rqs        *char      8
+001500180803Dcl  &RtnCod     *char      8
+001600180803Dcl  &LstPgm     *char     10
+001700180803Dcl  &VldFKy     *char     60
+001800180803Dcl  &Grp        *char     20
+001900180803Dcl  &BankCode   *char      4
+002000180803Dcl  &Date1      *char      8
+002100180803Dcl  &Date2      *char      8
+002200180803Dcl  &GroupName  *char     30
+002300180803Dcl  &XmtName    *char      5
+002400010131
+002500180803/* Create Message Data queue...                                               */
+002600180803CrtDtaQ  QTEMP/MsgDtaQ  MaxLEn(80) Text('Program Message Queue')
+002700180803MonMsg CPF0000
+002800010131
+002900180803RtvJobA User(&UsrPrf) Type(&JobType)
+003000010131
+003100180803/* Interactive = '1'...                                                       */
+003200180803If (&JobType = '1') Then(+
+003300180803 do)
+003400010322
+003500180803 /* Prompt for Repot...                                                       */
+003600180803 ChgVar &VldFKy 'X   '
+003700180803 Call Pmtmtp Parm(&Rqs &RtnCod &LstPgm &VldFKy &Grp &Date1 &Date2 +
+003800180803                  &GroupName &BankCode &XmtName)
+003900180803
+004000180803 If (&RtnCod = ' ') Then(+
+004100180803  do)
+004200180803
+004300180803  if (&BankCode = 'SYNB') Then(+
+004400180803   do)
+004500180803   SbmJob Cmd(Call Lumsybcl Parm('0165')) Job(PMTSYBCL)
+004600180803   GoTo EndPgm
+004700180803  Enddo
+004800180803
+004900180803  SbmJob Cmd(Call Lummtbcl Parm(&Grp &BankCode &Date1 &Date2 &GroupName +
+005000180803         &XmtName)) Job(PMTMTBCL)
+005100180803 Enddo
+005200180803
+005300180803Enddo
+005400010131
+005500180803EndPgm:
+005600180803EndPgm
+005700180803
+005800180803/*============================================================================*/

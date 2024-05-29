@@ -1,0 +1,44 @@
+000100091223             PGM        PARM(&WWOPT &KEYDS &FIXDS &RTN)
+000200000000
+000300000000/* Declare program variables  */
+000400991201             DCL        VAR(&RQS) TYPE(*CHAR) LEN(8) VALUE(' ') /* +
+000500991201                          request */
+000600091223             DCL        VAR(&RTN) TYPE(*CHAR) LEN(10)
+000700000707             DCL        VAR(&USER) TYPE(*CHAR) LEN(10)
+000800991201             DCL        VAR(&RTNCOD) TYPE(*CHAR) LEN(8) VALUE(' ') +
+000900991201                          /* return code */
+001000991201             DCL        VAR(&LSTPGM) TYPE(*CHAR) LEN(10) VALUE(' ') +
+001100991201                          /* last pgm dsp */
+001200090715             DCL        VAR(&WWOPT) TYPE(*CHAR) LEN(8) /* option */
+001300090715             DCL        VAR(&FIXDS) TYPE(*CHAR) LEN(40)
+001400081120             DCL        VAR(&KEYDS) TYPE(*CHAR) LEN(2048) /* record +
+001500081120                          DS */
+001600070911             DCL        VAR(&RCDDS) TYPE(*CHAR) LEN(2048) /* record +
+001700070911                          DS */
+001800991201             DCL        VAR(&VLDOPT) TYPE(*CHAR) LEN(60) VALUE(' ') +
+001900991201                          /* valid opt */
+002000991201             DCL        VAR(&VLDFKY) TYPE(*CHAR) LEN(60) VALUE(' ') +
+002100991201                          /* valid fnc */
+002200010219             DCL        VAR(&PFX241) TYPE(*CHAR) LEN(1) /* Data file +
+002300010219                          Prefix */
+002400081120
+002500081121             OVRDBF     FILE(TRNSUMP) TOFILE(QTEMP/TRNSUMP)
+002600091207             OVRDBF     FILE(TRNMIT) TOFILE(F.TRNMIT) SHARE(*NO)
+002700091207             OVRDBF     FILE(HIST) TOFILE(F.HIST)
+002800081121
+002900081121             OVRDBF     FILE(DW310JF2) TOFILE(F.TRNMIT1) SHARE(*YES)
+003000081121
+003100151109             OPNQRYF    FILE((F.TRNMIT1) (F.CARMST)) OPTION(*INP) +
+003200151109                          FORMAT(DW310JF2) QRYSLT('dltcod *EQ "A" +
+003300151109                          *and CARBC *EQ "D" *AND QQDATE *NE 0 ') +
+003400151109                          KEYFLD((SOCSOC)) JFLD((CARCOD CARRCD)) +
+003401151109                          IGNDECERR(*YES)
+003500081120
+003600100126             OVRDBF     FILE(MEMBER) TOFILE(F.MEMBER)
+003700100126             OVRDBF     FILE(ACCMST) TOFILE(F.ACCMST)
+003800091223             CALL       PGM(PRCAAT) PARM(&WWOPT &KEYDS &FIXDS &RTN)
+003900081121             CLOF       OPNID(F.TRNMIT1)
+004000010219
+004100000127
+004200000210 ENDPGM:     RCLRSC
+004300991105             ENDPGM
