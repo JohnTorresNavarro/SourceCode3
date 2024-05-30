@@ -1,102 +1,103 @@
-000100130814/*-------------------------------------------------------------------*/
-000200130814/* Program: HUM010CL                                                 */
-000300130814/* Description: Driver CL for Humana export process for 590-001-0043 */
-000400130814/*              (MacFadden)                                          */
-000500130814/* Author: Debora Bond                                               */
-000600130814/* Date: 08/14/2013                                                  */
-000700130814/*                                                                   */
-000800130814/*-------------------------------------------------------------------*/
-000900130814/* Modifications:                                                    */
-001000130919/* SSK 09/19/2013 ADD AUTO ARCHIVE FOR DATA FILES                    */
-001100130919/*                                                                   */
-001200130919/*                                                                   */
-001300130919/*                                                                   */
-001400130919/*                                                                   */
-001500130814/*-------------------------------------------------------------------*/
-001600130827             PGM
-001700110606
-001800130827             DCL        VAR(&EXPORTID) TYPE(*CHAR) LEN(10) +
-001900130827                          VALUE('0000000093')
-002000130820             DCL        VAR(&ERROR_MSG) TYPE(*CHAR) LEN(90)
-002100130820             DCL        VAR(&EMAIL_TXT) TYPE(*CHAR) LEN(256) +
-002200130820                          VALUE('The Humana Enrollment Export job +
-002300130820                          encountered the following error:  ')
-002400130820
-002500130827/* Clear Humana files:  file HUM010WF is the actual flat file that  */
-002600130820/* will be transmitted.  The other files are written to only to aid */
-002700130820/* the programmer in seeing the actual data in their respective     */
-002800130820/* formats and fields.                                              */
-002900130826             CLRPFM     FILE(HUM010WF)
-003000130821             CLRPFM     FILE(HUMDETAIL)
-003100130821             CLRPFM     FILE(HUMTRAILR)
-003200110606
-003300130823             OVRDBF     FILE(MEMAC#1) TOFILE(QS36F/F.MEMAC#1)
-003400110606             OVRDBF     FILE(DEPNDC) TOFILE(QS36F/F.DEPNDC)
-003500110606
-003600130820             CALL       PGM(HUM010R) PARM(&EXPORTID &ERROR_MSG)
-003700110606
-003800130820/* If Export program encountered any errors - send email to Ops */
-003900130820             IF         COND(&ERROR_MSG *NE ' ') THEN(DO)
-004000130820             CHGVAR     VAR(&EMAIL_TXT) VALUE(&EMAIL_TXT *BCAT ' ' +
-004100130820                          *CAT &ERROR_MSG)
-004200130919             EMAIL      SUBJECT('HUMANA EXPORT ERROR!!!') +
-004300130919                          MSGTXT(&EMAIL_TXT) EMAIL(DBOND@GBSIO.NET)
-004400130919             EMAIL      SUBJECT('HUMANA EXPORT ERROR!!!') +
-004500130919                          MSGTXT(&EMAIL_TXT) +
-004600130919                          EMAIL(AS400_OPERATORS@GBSIO.NET)
-004700130820             ENDDO
-004800110606
-004900130919/* FTP SCRIPT      */
-005000130919
-005100130919             CHKOBJ     OBJ(QTEMP/IOFTPSC0) OBJTYPE(*FILE)
-005200130919             MONMSG     MSGID(CPF9801) EXEC(CRTPF +
-005300130919                          FILE(QTEMP/IOFTPSC0) +
-005400130919                          SRCFILE(GBSPGM/QDDSSRC) OPTION(*NOSRC +
-005500130919                          *NOLIST))
-005600130919
-005700130919             CLRPFM     FILE(QTEMP/IOFTPSC0)
-005800130919
-005900130919             OVRDBF     FILE(IOFTPSC0) TOFILE(QTEMP/IOFTPSC0)
-006000130919
-006100130919             CALL       PGM(HUM001R)
-006200130919
-006300130919             DLTOVR     FILE(*ALL)
-006400130919
-006500130919             CPYF       FROMFILE(QTEMP/IOFTPSC0) +
-006600130919                          TOFILE(GBSPGM/QTXTSRC) TOMBR(CMFHUMXPRT) +
-006700130919                          MBROPT(*REPLACE) FMTOPT(*CVTSRC)
-006800130919
-006900130814/* send files to ftp server                                               */
-007000130814             CLRPFM     FILE(GBSPGM/QTXTSRC) MBR(LOGHUMAPRT)
-007100110606
-007200130814             OVRDBF     FILE(INPUT) TOFILE(GBSPGM/QTXTSRC) +
-007300131002                          MBR(CMFHUMXPRT)
-007400110606
-007500130814             OVRDBF     FILE(OUTPUT) TOFILE(GBSPGM/QTXTSRC) +
-007600130814                          MBR(LOGHUMAPRT)
-007700110606
-007800130829             FTP        RMTSYS(LOOPBACK)
-007900110606
-008000110606             DLTOVR     FILE(INPUT OUTPUT)
-008100110606
-008200110606             OVRPRTF    FILE(QSYSPRT) OUTQ(GALIB/GAOUTQ) HOLD(*YES)
-008300130814             CPYF       FROMFILE(GBSPGM/QTXTSRC) TOFILE(*PRINT) +
-008400130814                          FROMMBR(LOGHUMAPRT)
-008500110606             DLTOVR     FILE(*ALL)
-008600110606
-008700110606             RCLRSC
-008800130814
-008900160718 /*          EMAIL      SUBJECT('Humana Export For MacFadden') +      */
-009000160718 /*                       MSGTXT('Export file for MacFadden (acct#: + */
-009100160718 /*                       590-001-0043) is ready to be sent to +      */
-009200160718 /*                       carrier.  File is under sub-directory +     */
-009300160718 /*                       HUMANA_FTP.') EMAIL(DBOND@GBSIO.NET)        */
-009400130814
-009500130913             EMAIL      SUBJECT('Humana Export For MacFadden') +
-009600130913                          MSGTXT('Export file for MacFadden (acct#: +
-009700130913                          590-001-0043) is ready to be sent to +
-009800130913                          carrier.  File is under sub-directory +
-009900130913                          HUMANA_FTP.') +
-010000160822                          EMAIL(jtorres@@GBSIO.NET)
-010100130913
-010200110606             ENDPGM
+/*-------------------------------------------------------------------*/
+/* Program: HUM010CL                                                 */
+/* Description: Driver CL for Humana export process for 590-001-0043 */
+/*              (MacFadden)                                          */
+/* Author: Debora Bond                                               */
+/* Date: 08/14/2013                                                  */
+/*                                                                   */
+/*-------------------------------------------------------------------*/
+/* Modifications:                                                    */
+/* SSK 09/19/2013 ADD AUTO ARCHIVE FOR DATA FILES                    */
+/*   test                                                            */
+/*                                                                   */
+/*                                                                   */
+/*                                                                   */
+/*                                                                   */
+/*-------------------------------------------------------------------*/
+             PGM
+
+             DCL        VAR(&EXPORTID) TYPE(*CHAR) LEN(10) +
+                          VALUE('0000000093')
+             DCL        VAR(&ERROR_MSG) TYPE(*CHAR) LEN(90)
+             DCL        VAR(&EMAIL_TXT) TYPE(*CHAR) LEN(256) +
+                          VALUE('The Humana Enrollment Export job +
+                          encountered the following error:  ')
+
+/* Clear Humana files:  file HUM010WF is the actual flat file that  */
+/* will be transmitted.  The other files are written to only to aid */
+/* the programmer in seeing the actual data in their respective     */
+/* formats and fields.                                              */
+             CLRPFM     FILE(HUM010WF)
+             CLRPFM     FILE(HUMDETAIL)
+             CLRPFM     FILE(HUMTRAILR)
+
+             OVRDBF     FILE(MEMAC#1) TOFILE(QS36F/F.MEMAC#1)
+             OVRDBF     FILE(DEPNDC) TOFILE(QS36F/F.DEPNDC)
+
+             CALL       PGM(HUM010R) PARM(&EXPORTID &ERROR_MSG)
+
+/* If Export program encountered any errors - send email to Ops */
+             IF         COND(&ERROR_MSG *NE ' ') THEN(DO)
+             CHGVAR     VAR(&EMAIL_TXT) VALUE(&EMAIL_TXT *BCAT ' ' +
+                          *CAT &ERROR_MSG)
+             EMAIL      SUBJECT('HUMANA EXPORT ERROR!!!') +
+                          MSGTXT(&EMAIL_TXT) EMAIL(DBOND@GBSIO.NET)
+             EMAIL      SUBJECT('HUMANA EXPORT ERROR!!!') +
+                          MSGTXT(&EMAIL_TXT) +
+                          EMAIL(AS400_OPERATORS@GBSIO.NET)
+             ENDDO
+
+/* FTP SCRIPT      */
+
+             CHKOBJ     OBJ(QTEMP/IOFTPSC0) OBJTYPE(*FILE)
+             MONMSG     MSGID(CPF9801) EXEC(CRTPF +
+                          FILE(QTEMP/IOFTPSC0) +
+                          SRCFILE(GBSPGM/QDDSSRC) OPTION(*NOSRC +
+                          *NOLIST))
+
+             CLRPFM     FILE(QTEMP/IOFTPSC0)
+
+             OVRDBF     FILE(IOFTPSC0) TOFILE(QTEMP/IOFTPSC0)
+
+             CALL       PGM(HUM001R)
+
+             DLTOVR     FILE(*ALL)
+
+             CPYF       FROMFILE(QTEMP/IOFTPSC0) +
+                          TOFILE(GBSPGM/QTXTSRC) TOMBR(CMFHUMXPRT) +
+                          MBROPT(*REPLACE) FMTOPT(*CVTSRC)
+
+/* send files to ftp server                                               */
+             CLRPFM     FILE(GBSPGM/QTXTSRC) MBR(LOGHUMAPRT)
+
+             OVRDBF     FILE(INPUT) TOFILE(GBSPGM/QTXTSRC) +
+                          MBR(CMFHUMXPRT)
+
+             OVRDBF     FILE(OUTPUT) TOFILE(GBSPGM/QTXTSRC) +
+                          MBR(LOGHUMAPRT)
+
+             FTP        RMTSYS(LOOPBACK)
+
+             DLTOVR     FILE(INPUT OUTPUT)
+
+             OVRPRTF    FILE(QSYSPRT) OUTQ(GALIB/GAOUTQ) HOLD(*YES)
+             CPYF       FROMFILE(GBSPGM/QTXTSRC) TOFILE(*PRINT) +
+                          FROMMBR(LOGHUMAPRT)
+             DLTOVR     FILE(*ALL)
+
+             RCLRSC
+
+ /*          EMAIL      SUBJECT('Humana Export For MacFadden') +      */
+ /*                       MSGTXT('Export file for MacFadden (acct#: + */
+ /*                       590-001-0043) is ready to be sent to +      */
+ /*                       carrier.  File is under sub-directory +     */
+ /*                       HUMANA_FTP.') EMAIL(DBOND@GBSIO.NET)        */
+
+             EMAIL      SUBJECT('Humana Export For MacFadden') +
+                          MSGTXT('Export file for MacFadden (acct#: +
+                          590-001-0043) is ready to be sent to +
+                          carrier.  File is under sub-directory +
+                          HUMANA_FTP.') +
+                          EMAIL(jtorres@@GBSIO.NET)
+
+             ENDPGM
