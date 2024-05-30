@@ -1,0 +1,18 @@
+000100000000/*   CRTBNDCL   DBGVIEW(*SOURCE)                                              */
+000200000000/*____________________________________________________________________________*/
+000300000000/*                                                                            */
+000400000000/*  Description:  Report ACA Error +
+000500000000/*                                                                            */
+000600000000/*  (c)Copyright 2024 by Innovative Outsourcing, Inc.                     */
+000700000000/*                                                                            */
+000800000000/*    Created by:  JALLEN - January 08, 2024 +
+000900000000/*____________________________________________________________________________*/
+001000000000
+001100240108             PGM        PARM(&MCOV)
+001200240108             DCL        VAR(&MCOV) TYPE(*CHAR) LEN(88)
+001300000000
+001400240108             EMAIL      SUBJECT('ACA Error Reporting') MSGTXT(&MCOV) +
+001500240108                          EMAIL(JON.ALLEN@AMWINS.COM)
+001600240108             MONMSG     MSGID(CPF0000)
+001700000000
+001800000000             ENDPGM
