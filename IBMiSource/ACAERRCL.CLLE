@@ -6,6 +6,7 @@
 000600000000/*  (c)Copyright 2024 by Innovative Outsourcing, Inc.                     */
 000700000000/*                                                                            */
 000800000000/*    Created by:  JALLEN - January 08, 2024 +
+            /* J. Torres - 06/03/2024 - Test Fetch for RDi document
 000900000000/*____________________________________________________________________________*/
 001000000000
 001100240108             PGM        PARM(&MCOV)
