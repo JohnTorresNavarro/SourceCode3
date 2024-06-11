@@ -1,0 +1,26 @@
+000100000000/*   CRTCLPGM                                                                 */
+000200000000/*____________________________________________________________________________*/
+000300000000/*                                                                            */
+000400000000/*  Description:  ADDPFMTRG one-time +
+000500000000/*                                                                            */
+000600000000/*  (c)Copyright 2020 by Innovative Outsourcing, Inc.                     */
+000700000000/*                                                                            */
+000800000000/*    Created by:  JALLEN - September 02, 2020 +
+000900000000/*____________________________________________________________________________*/
+001000000000
+001100000000             PGM
+001200200902
+001300231212             RMVPFTRG   FILE(GBSDTAT/F.MEMBER)
+001400231212             MONMSG     MSGID(CPF32C6 CPF3202) EXEC(GOTO +
+001500231212                          CMDLBL(ENDPGM))
+001600200902
+001700231212 AGAIN:      ADDPFTRG   FILE(GBSDTAT/F.MEMBER) TRGTIME(*AFTER) +
+001800231212                          TRGEVENT(*UPDATE) PGM(GBSPGMT/MEMTRGR) +
+001900231212                          TRGLIB(*FILE) TRGUPDCND(*CHANGE)
+002000200902
+002100200902             MONMSG     MSGID(CPF3202 CPF32C6) EXEC(DO)
+002200200902             DLYJOB     DLY(300)
+002300200902             GOTO       CMDLBL(AGAIN)
+002400200902             ENDDO
+002500000000
+002600231212ENDPGM:      ENDPGM

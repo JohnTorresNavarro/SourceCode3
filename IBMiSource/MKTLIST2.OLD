@@ -1,0 +1,65 @@
+000101040322      *___________________________________________________________________
+000102040408     FAGENCY    IP   E           K DISK
+000105040408     FSPRAGXR1  IF   E           K DISK
+000106040408     FSMANRLT3  IF   E           K DISK
+000107040408     FCMCTLF    IF   E           K DISK
+000108040408     FACCMST    IF   E           K DISK    RENAME(ACCMSR:MSTR)
+000109040408     FMKTAG     O  A E           K DISK    RENAME(AGENR:MKTR)
+000110040408     DYES              S              5S 0 inz
+000111040408     DNO               S              5S 0 inz
+000202040319      *___________________________________________________________________
+002578040322      * Build Target
+002579040408     C                   Eval      Yes = 0
+002580040408     C                   Eval      No  = 0
+002581040322     C                   Exsr      BuildTarget
+002583040322      *___________________________________________________________________
+002584040322      * Build Target
+002585040322      *___________________________________________________________________
+002586040322     C     BuildTarget   BEGSR
+002587040408     C     AGCODE        Setll     SPRAGXR1
+002588040408     C     AGCODE        Reade     SPRAGXR1
+002589040322     C                   Dow       (not %eof(SPRAGXR1))
+002590040322      *
+002591040322     C     SXasid        Setll     SMANRLT3
+002592040322     C     SXasid        Reade     SMANRLT3
+002593040322     C                   Dow       (not %eof(SMANRLT3))
+002594040322      *
+002595040322     C     SRasid        Setll     CMCTLF
+002596040322     C     SRasid        Reade     CMCTLF
+002597040322     C                   Dow       (not %eof(CMCTLF))
+002598040322      *
+002601040322     C     RcdKey        Chain     ACCMST
+002602040322     C                   if        %Found(ACCMST)
+002603040408     C                   if        ATRMDT <> 0
+002604040408     C                   Eval      Yes = Yes + 1
+002605040408     C                   Else
+002606040408     C                   Eval      No  = No  + 1
+002607040408     C                   End
+002608040322     C                   End
+002610040322      *
+002611040322     C     SRasid        Reade     CMCTLF
+002612040322     C                   Enddo
+002613040322      *
+002614040322     C     SXasid        Reade     SMANRLT3
+002615040322     C                   Enddo
+002616040322      *
+002617040408     C     AGCODE        Reade     SPRAGXR1
+002618040322     C                   Enddo
+002619040322      *
+002620040408     C**                 If        Yes = 0  and
+002621040408     C**                           No  = 0
+002622040408     C**                 Write     MKTR
+002623040408     C**                 End
+002624040408      *
+002625040408     C                   If        Yes <>0  and
+002626040408     C                             No  = 0
+002627040408     C                   z-add     yes           AGTXID
+002628040408     C                   Write     MKTR
+002629040408     C                   End
+002630040408      *
+002631040322     C     RcdKey        Klist
+002632040322     C                   Kfld                    CMTRST
+002633040322     C                   Kfld                    CSUBDV
+002634040322     C                   Kfld                    CMACCT
+002635040322      *
+002636040322     C                   ENDSR
