@@ -1,0 +1,101 @@
+000100131011     H NOMAIN OPTION(*NODEBUGIO) DEBUG COPYRIGHT('GBS - GROUPBENEFITSERVICES')
+000200131011   X***X
+000300131011   X***X *------------------------------------------------------------------
+000400131101   X***X * MODULE NAME..: C20SRVPGM
+000500131011   X***X * WRITTEN BY...: STEPHEN KING
+000600131101   X***X * DATE WRITTEN.: 11/01/2013
+000700131101   X***X * DESCRIPTION..: MODULE WITHIN SERVICE PROGRAM C20SRVPGM..
+000800131011   X***X * CALLED FROM..: ANY PROGRAM
+000900131011   X***X *
+001000131011   X***X *------------------------------------------------------------------
+001100131011   X***X * MODIFICATION HISTORY:
+001200131011   X***X *
+001300131011   X***X *    DATE    DESCRIPTION                                       BY
+001400131011   X***X *  --------  -----------------------------------------        ----
+001500131011   X***X *
+001600131011   X***X *
+001700131011   X***X *
+001800131011   X***X *
+001900131011   X***X *
+002000131011   X***X *------------------------------------------------------------------
+002100131011   X***X
+002200131101     FCODE20P   IF   E           K DISK    USROPN
+002300131011   X***X
+002400131101     D C@DE20P       E DS                  EXTNAME(CODE20P)
+002500131011    ***
+002600131101      /DEFINE RTV_CODE20_RETURN
+002700131011      /DEFINE COPY_ALL_PROTOS_AND_FIELDS
+002800131101      /COPY QCPYSRC,C20SRVPGMP
+002900131101      /UNDEFINE RTV_CODE20_RETURN
+003000131011      /UNDEFINE COPY_ALL_PROTOS_AND_FIELDS
+003100131015    ***
+003200131014   X***X
+003300000000      *---------------------------------------------------------------------
+003400131014      * FUNCTION TO RETRIEVE ACCOUNT ADDRESS PIECES
+003500000000      *---------------------------------------------------------------------
+003600131101     P #RTV_CODE20     B                   EXPORT
+003700131014
+003800131101      /DEFINE RTV_CODE20_PI
+003900131101      /DEFINE RTV_CODE20_FIELDS
+004000131101      /COPY QCPYSRC,C20SRVPGMP
+004100131101      /UNDEFINE RTV_CODE20_PI
+004200131101      /UNDEFINE RTV_CODE20_FIELDS
+004300131101
+004400131014    ***
+004500131101     D KF@TYPE         S             10A   INZ
+004600131101     D KF@CODE         S             20A   INZ
+004700131011    ***
+004800131011     D CMD             S            200A   INZ(*BLANKS)
+004900131011     D LENGTH          S             15P 5 INZ(0)
+005000131011     D #LEN            S              3P 0 INZ(0)
+005100131011    ***
+005200131011    ***
+005300131011   X***X
+005400131011    ***
+005500131011     C                   EXSR      $PRIME
+005600131014    ***
+005700131101     C                   OPEN      CODE20P
+005800131014    ***
+005900131101     C     KL#TC         CHAIN     CODE20F
+006000131014    ***
+006100131101     C                   IF        NOT %FOUND(CODE20P)
+006200131101     C                   EVAL      C20CODE = 'ERROR*ERROR'
+006300131014     C                   CLOSE     *ALL
+006400131101     C                   RETURN    C@DE20P
+006500131014     C                   ENDIF
+006600131014    ***
+006700131014     C                   CLOSE     *ALL
+006800131014    ***
+006900131101     C                   RETURN    C@DE20P
+007000131014    ***
+007100131011   S***S
+007200131011     C     $PRIME        BEGSR
+007300131011    ***
+007400131101     C     KL#TC         KLIST
+007500131101     C                   KFLD                    KF@TYPE
+007600131101     C                   KFLD                    KF@CODE
+007700131015    ***
+007800131101     C                   CLEAR                   C@DE20P
+007900131011    ***
+008000131101     C                   EVAL      KF@TYPE = C20_TYPE
+008100131101     C                   EVAL      KF@CODE = C20_CODE
+008200131011    ***
+008300131011     C                   ENDSR
+008400131011   S***S
+008500131011     C     $OVRRDE       BEGSR
+008600131011    ***
+008700131011     C                   EVAL      #LEN = %LEN(%TRIM(CMD))
+008800131011     C                   Z-ADD     #LEN          LENGTH
+008900131011    ***
+009000131011     C                   CALL      'QCMDEXC'
+009100131011     C                   PARM                    CMD
+009200131011     C                   PARM                    LENGTH
+009300131011    ***
+009400131011     C                   ENDSR
+009500131011   S***S
+009600131101     P #RTV_CODE20     E
+009700131014   X***X
+009800131014   X***X
+009900131014   X***X
+010000131014   X***X
+010100131014   X***X

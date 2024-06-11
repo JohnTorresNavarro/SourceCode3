@@ -1,0 +1,595 @@
+000100140611     H DFTACTGRP(*NO) ACTGRP(*CALLER) BNDDIR('ALLSRVPGMN')
+000200131230   X***X RENEWAL CHECK FOR PRODUCT REGION BY RENEWAL PERIOD FOR ACCOUNTS
+000300131230   X***X          PRIMARILY FOR ACA
+000400131230   X***X          ONLY FOR MEDICAL, DENTAL, AND VISION [EVENTUALLY]
+000500131231   X***X
+000600131231   X***X DO NOT CALL THIS PROGRAM UNLESS YOU ARE SURE YOU NEED TO
+000700131231   X***X
+000800131231   X***X THERE ARE MINIMAL SAFE GUARDS TO KEEP DATA FROM SQUIRRELING.
+000900131230   X***X
+001000131231   X***X PARM IS 12 BYTES IN LENGTH = MMTTTSSSAAAA
+001100131231   X***X
+001200131230   X***X FOR ALL ACCOUNTS IN A RENEWAL MONTH, PASS MONTH/'000'/'000'/'0000'
+001300131231   X***X    USE THE ALL ACCOUNT METHOD FOR MONTHLY RESET
+001400131230   X***X
+001500131230   X***X FOR ONE ACCOUNT, PASS '00'/TRUST/SUB/ACCOUNT
+001600131231   X***X    USE ONLY THE ONE ACCOUNT METHOD FOR FM061R
+001700131230   X***X
+001800131230   X***X SSK DECEMBER, 2013
+001900131230   X***X
+002000140103   X***X SSK 01/03/2014 HARD CODE DC AND VA STATES
+002100140120   X***X SSK 01/17/2014 HARD CODE PA
+002200140120   X***X SSK 01/20/2014 ADD STATE TO FILE
+002300140606   X***X SSK 02/20/2014 ADD CARRIER MASTER
+002400141107   X***X SSK 11/07/2014 ADDED 'D' FOR ACA DENTAL
+002500141107   X***X
+002600131230   X***X
+002700131231     FACMUNIQUE IF   E           K DISK
+002800131231     FCOMCTUNIQ IF   E           K DISK
+002900131230     FPLNUNIQUE IF   E           K DISK
+003000140220     FCARUNIQUE IF   E           K DISK
+003100140212     FPLNAUXP   IF   E           K DISK
+003200140212     FAUDW0020  IF   E           K DISK
+003300140212     FGRATEINQ  IF   E           K DISK
+003400140224     FACARGRP   IF A E           K DISK
+003500131230   X***X
+003600131230   X***X
+003700131231      /DEFINE GET_PLAN_TYPE_PR
+003800131231      /DEFINE GET_PLAN_TYPE_FIELDS
+003900131231      /DEFINE PLN_CLOSESRV_PR
+004000131231      /COPY QCPYSRC,PLNSRVPGMP
+004100131231      /UNDEFINE GET_PLAN_TYPE_PR
+004200131231      /UNDEFINE GET_PLAN_TYPE_FIELDS
+004300131231      /UNDEFINE PLN_CLOSESRV_PR
+004400131231   X***X
+004500131231      /DEFINE RTV_ACCADDR_PR
+004600131231      /DEFINE RTV_ACCADDR_FIELDS
+004700131231      /DEFINE RTV_ACCADDR_RETURN
+004800131231      /COPY QCPYSRC,ACCSRVPGMP
+004900131231      /UNDEFINE RTV_ACCADDR_PR
+005000131231      /UNDEFINE RTV_ACCADDR_FIELDS
+005100131231      /UNDEFINE RTV_ACCADDR_RETURN
+005200131231   X***X
+005300131231      /DEFINE GET_RATING_REGION_PR
+005400131231      /DEFINE GET_RATING_REGION_FIELDS
+005500131231      /COPY QCPYSRC,ZIPSRVPGMP
+005600131231      /UNDEFINE GET_RATING_REGION_PR
+005700131231      /UNDEFINE GET_RATING_REGION_FIELDS
+005800131231   X***X
+005900140606      /DEFINE RTV_CODE20_PR
+006000140606      /DEFINE RTV_CODE20_FIELDS
+006100140606      /COPY QCPYSRC,C20SRVPGMP
+006200140606      /UNDEFINE RTV_CODE20_PR
+006300140606      /UNDEFINE RTV_CODE20_FIELDS
+006400140606   X***X
+006500131230     D                 DS
+006600131230     D DS@PARM                 1     12A
+006700131230     D  RM                     1      2S 0
+006800131230     D  PT                     3      5S 0
+006900131230     D  PS                     6      8S 0
+007000131230     D  PA                     9     12S 0
+007100131230    ***
+007200131231     D MRM             S              2S 0                                      MEDICAL RENEWAL MTH
+007300131231     D M@RANGE         S             16A   INZ                                  MEDICAL RANGE
+007400140212     D M@DEFAULT       S             16A   INZ                                  MEDICAL RANGE
+007500131231    ***
+007600131231     D DRM             S              2S 0                                      DENTAL RENEWAL MTH
+007700131231     D D@RANGE         S             16A   INZ                                  DENTAL RANGE
+007800140212     D D@DEFAULT       S             16A   INZ                                  DENTAL RANGE
+007900131231    ***
+008000131231     D @RM             S              2A   INZ
+008100131230     D @STEP           S             10A   INZ
+008200131230     D @1              S              1A   INZ
+008300131230     D YES             S               N   INZ(*ON)
+008400131230     D NO              S               N   INZ(*OFF)
+008500140212     D ARG_XST         S               N   INZ(*OFF)
+008600140212     D ALL_ACC         S               N   INZ(*OFF)
+008700140212     D @STATE          S              2A   INZ
+008800140212     D @CNTY           S              2A   INZ
+008900131231     D @RANGE          S             16A   INZ
+009000131230    ***
+009100131230     D #ISO            S               D   DATFMT(*ISO)
+009200131230     D @XSX            S              8A   INZ
+009300131230     D #XSX            S              8S 0 INZ
+009400131231     D #TODAY          S              8S 0 INZ
+009500141107     D #LIMIT          S              8S 0 INZ
+009600131231    ***
+009700131231     D                 DS
+009800131231     D DS@RANGE                1     16A
+009900131231     D  KF@FR                  1      8S 0
+010000131231     D  KF@TO                  9     16S 0
+010100131230    ***
+010200131231     D KF@TRS          S              3S 0 INZ(0)
+010300131231     D KF@SUB          S              3S 0 INZ(0)
+010400131231     D KF@ACC          S              4S 0 INZ(0)
+010500131231     D KF@PLN          S              4A   INZ(*BLANKS)
+010600131231     D KF@PDT          S              1A   INZ
+010700131231     D KF@REGN         S              7A   INZ
+010800140220     D KF@CAR          S              2A   INZ
+010900131231    ***
+011000140606     D C@DE20P       E DS                  EXTNAME(CODE20P)
+011100140606    ***
+011200131230   X***X
+011300131231    *** GET TODAY'S DATE FOR TERM RECORD PROTECTION
+011400131231    ***
+011500140217     C                   EVAL      #ISO = %DATE
+011600131231     C                   MOVE      #ISO          #TODAY
+011700141107     C                   ADDDUR    3:*M          #ISO
+011800141107     C                   MOVE      #ISO          #LIMIT
+011900131230    ***
+012000131231     C     *ENTRY        PLIST
+012100131231     C                   PARM                    @PARM            12
+012200131231    ***
+012300131231     C                   EVAL      DS@PARM = @PARM
+012400131231    ***
+012500131231     C     KL#TSP        KLIST
+012600131231     C                   KFLD                    KF@TRS
+012700131231     C                   KFLD                    KF@SUB
+012800131231     C                   KFLD                    KF@PLN
+012900140212    ***
+013000140212     C     KL#TSAP       KLIST
+013100140212     C                   KFLD                    KF@TRS
+013200140212     C                   KFLD                    KF@SUB
+013300140212     C                   KFLD                    KF@ACC
+013400140212     C                   KFLD                    KF@PLN
+013500131231    ***
+013600131231     C     KL#TSA        KLIST
+013700131231     C                   KFLD                    KF@TRS
+013800131231     C                   KFLD                    KF@SUB
+013900131231     C                   KFLD                    KF@ACC
+014000140212    ***
+014100140212     C     KL#TSAPDT     KLIST
+014200140212     C                   KFLD                    KF@TRS
+014300140212     C                   KFLD                    KF@SUB
+014400140212     C                   KFLD                    KF@ACC
+014500140212     C                   KFLD                    KF@PDT
+014600140220     C                   KFLD                    KF@CAR
+014700131231    ***
+014800131231     C     KL#TSAD       KLIST
+014900131231     C                   KFLD                    KF@TRS
+015000131231     C                   KFLD                    KF@SUB
+015100131231     C                   KFLD                    KF@ACC
+015200131231     C                   KFLD                    KF@PDT
+015300140220     C                   KFLD                    KF@CAR
+015400131231     C                   KFLD                    KF@FR
+015500131231     C                   KFLD                    KF@TO
+015600131231    ***
+015700131231    *** IF RENEWAL MONTH IS ZERO, JUST ONE ACCOUNT TO DO, ELSE ALL ACTIVE ACCOUNTS
+015800131231    ***
+015900131231     C                   IF        RM = 00
+016000131231     C                   EVAL      ALL_ACC = NO
+016100131231     C                   ELSE
+016200131231     C                   EVAL      ALL_ACC = YES
+016300131231     C                   ENDIF
+016400131231    ***
+016500131231    *** IF ALL ACCOUNTS, THEN SET MEDICAL AND DENTAL RENEWAL MONTH TO PASSED PARM;
+016600131231    ***   CALCULATE THE RANGE AND STORE FOR MEDICAL AND DENTAL RANGES.
+016700131231    ***
+016800131231    *** IF ONE ACCOUNT, THEN WE LEAVE MEDICAL AND DENTAL RENEWAL MONTH TO ZERO;
+016900131231    ***   TO BE CAPTURED IF AN ACA PLAN SHOWS UP.
+017000131231    ***
+017100131231    ***
+017200131230     C                   IF        ALL_ACC = YES
+017300131230     C                   EVAL      @STEP = 'ALL ACCTS '
+017400131231     C                   EVAL      MRM = RM
+017500131231     C                   EVAL      DRM = RM
+017600131231     C                   MOVE      RM            @RM
+017700131230     C                   EXSR      $RANGE
+017800140212     C                   EVAL      M@DEFAULT = @RANGE
+017900140212     C                   EVAL      D@DEFAULT = @RANGE
+018000131230     C                   ELSE
+018100131230     C                   EVAL      @STEP = 'JUST ONE  '
+018200131230     C                   ENDIF
+018300131230    ***
+018400131231    *** CONTROLLING LOOP
+018500131231    ***
+018600131230     C                   DOU       @STEP = 'DONE ACCT '
+018700131230     C     @STEP         CASEQ     'JUST ONE  '  $ONE_ACC
+018800131230     C     @STEP         CASEQ     'ALL ACCTS '  $ALL_ACC
+018900131230     C     @STEP         CASEQ     'ARE WE ACA'  $ACA_CHK
+019000131230     C     @STEP         CASEQ     'ANY COMCTL'  $COMCTX
+019100131230     C                   ENDCS
+019200131230     C                   ENDDO
+019300131231    ***
+019400131231     C                   EVAL      *INLR = *ON
+019500131231    ***
+019600131231    ***
+019700131230   S***S
+019800131230     C     $ALL_ACC      BEGSR
+019900131230    ***
+020000131230     C                   READ      ACCMSR
+020100131230    ***
+020200131231    *** ONCE ACCOUNT MASTER IS EOF, THEN WE CAN EXIT THE CONTROLLING LOOP
+020300131231    ***
+020400131231     C                   IF        %EOF(ACMUNIQUE)
+020500131230     C                   EVAL      @STEP = 'DONE ACCT '
+020600131230     C                   LEAVESR
+020700131230     C                   ENDIF
+020800131231    ***
+020900131231    *** SKIP ACCOUNTS TERMED BEFORE OR EQUAL TO TODAYS DATE
+021000131231    ***
+021100131231     C                   IF        ATRMDT > 0 AND ATRMDT <= #TODAY
+021200131231     C                   LEAVESR
+021300131231     C                   ENDIF
+021400131231    ***
+021500131231    *** PRIME KEY VALUES WITH ACCOUNT MASTER TRUST, SUB, & ACCT
+021600131231    ***
+021700131231     C                   EVAL      KF@TRS = ACTRST
+021800131231     C                   EVAL      KF@SUB = ACSUB#
+021900131231     C                   EVAL      KF@ACC = ACACCT
+022000131230    ***
+022100131231    *** ONWARD TO COMMISSION CONTROL
+022200131231    ***
+022300131230     C                   EVAL      @STEP = 'ANY COMCTL'
+022400131230    ***
+022500131230     C                   ENDSR
+022600131230   S***S
+022700131230     C     $ONE_ACC      BEGSR
+022800131230    ***
+022900131231    *** PRIME KEYS WITH PASSED PARMS OF TRUST, SUB, & ACCT
+023000131231    ***
+023100131230     C                   EVAL      KF@TRS = PT
+023200131230     C                   EVAL      KF@SUB = PS
+023300131230     C                   EVAL      KF@ACC = PA
+023400131230    ***
+023500131231    *** ONWARD TO COMMISSION CONTROL
+023600131231    ***
+023700131230     C                   EVAL      @STEP = 'ANY COMCTL'
+023800131230    ***
+023900131230     C                   ENDSR
+024000131230   S***S
+024100131230     C     $COMCTX       BEGSR
+024200131230    ***
+024300131231    *** IF ACCOUNT DOES NOT HAVE ANY COMMISSION CONTROL RECS, SKIP IT.
+024400131231    ***   WHEN PROCESSING ONE ACCOUNT, WE ARE READY TO EXIT PROGRAM,
+024500131231    ***     ELSE WE DEFER TO THE ACMUNIQUE EOF CHECK TO EXIT THIS PROGRAM.
+024600131231    ***
+024700131230     C     KL#TSA        CHAIN     COMCXR
+024800131231     C                   IF        NOT %FOUND(COMCTUNIQ)
+024900131230     C                   IF        ALL_ACC = NO
+025000131230     C                   EVAL      @STEP = 'DONE ACCT '
+025100131230     C                   ELSE
+025200131230     C                   EVAL      @STEP = 'ALL ACCTS '
+025300131230     C                   ENDIF
+025400131230     C                   LEAVESR
+025500131230     C                   ENDIF
+025600131230    ***
+025700131231    *** SET COMM CTL POINTER AND BLANK PLAN KEY FIELD
+025800131231    ***
+025900131230     C     KL#TSA        SETLL     COMCXR
+026000131230     C                   EVAL      KF@PLN = *BLANKS
+026100131230    ***
+026200131231    *** ONWARD TO COMMISSION CONTROL READ LOOP W/ACA CHECKING
+026300131231    ***
+026400131230     C                   EVAL      @STEP = 'ARE WE ACA'
+026500131230    ***
+026600131230     C                   ENDSR
+026700131230   S***S
+026800131230     C     $ACA_CHK      BEGSR
+026900131230    ***
+027000131230     C     KL#TSA        READE     COMCXR
+027100131230    ***
+027200131231    *** RAN OUT OF COMMISSION CONTROL RECS, TIME TO LEAVE THIS STEP.
+027300131231    ***   WHEN PROCESSING ONE ACCOUNT, WE ARE READY TO EXIT PROGRAM,
+027400131231    ***     ELSE WE DEFER TO THE ACMUNIQUE EOF CHECK TO EXIT THIS PROGRAM.
+027500131231    ***
+027600131231     C                   IF        %EOF(COMCTUNIQ)
+027700131230     C                   IF        ALL_ACC = NO
+027800131230     C                   EVAL      @STEP = 'DONE ACCT '
+027900131230     C                   ELSE
+028000131230     C                   EVAL      @STEP = 'ALL ACCTS '
+028100131230     C                   ENDIF
+028200131230     C                   LEAVESR
+028300131230     C                   ENDIF
+028400131231    ***
+028500131231    *** DO NOT PROCESS PREVIOUSLY TERMED COMMISSION CONTROL RECS
+028600131231    ***
+028700140220     C                   IF        CMCAN > 0 AND CMCAN <= 20140101
+028800131231     C                   LEAVESR
+028900131231     C                   ENDIF
+029000131230    ***
+029100131231    *** DO NOT PROCESS THE SAME PLAN AGAIN
+029200131231    ***
+029300131230     C                   IF        KF@PLN = CMPLAN
+029400131230     C                   LEAVESR
+029500131230     C                   ENDIF
+029600131230    ***
+029700131231    *** SET PLAN KEY FIELD TO COMM CTL PLAN
+029800131231    ***
+029900131230     C                   EVAL      KF@PLN = CMPLAN
+030000140212    ***
+030100140212    *** MAKE SURE PLAN IS NOT ON THE IGNORE FILE
+030200140212    ***
+030300140212     C     KL#TSAP       CHAIN     AUDF0020
+030400140212     C                   IF        %FOUND(AUDW0020)
+030500140212     C                   LEAVESR
+030600140212     C                   ENDIF
+030700131230    ***
+030800131231    *** THIS SHOULD NOT HAPPEN, BUT YOU NEVER KNOW
+030900131231    ***   WE DO NOT PROCESS INVALID PLANS
+031000131231    ***
+031100131230     C     KL#TSP        CHAIN     PLNMSR
+031200131230     C                   IF        NOT %FOUND(PLNUNIQUE)
+031300131230     C                   LEAVESR
+031400131230     C                   ENDIF
+031500131230    ***
+031600131231    *** GET PRODUCT FOR THE PLAN CATAGORY
+031700131231    ***
+031800131231     C                   EVAL      KF@PDT = #GET_PLAN_TYPE(PLNCAT)
+031900131231    ***
+032000131231    *** FUTURE "IF" IN CASE WE EVER DO VISION, JUST UNCOMMENT AND DELETE OTHER LINE
+032100131231     C*******************IF        KF@PDT <> 'M' AND KF@PDT <> 'D'
+032200131231     C*******************          AND KF@PDT <> 'V'
+032300131231    ***
+032400131231    *** MEDICAL AND DENTAL PRODUCTS ONLY
+032500131231    ***
+032600131231     C                   IF        KF@PDT <> 'M' AND KF@PDT <> 'D'
+032700131231     C                   LEAVESR
+032800131231     C                   ENDIF
+032900131230    ***
+033000131231    *** IF ALL ACCOUNTS, THEN CHECK RENEWAL MONTH FOR THE PRODUCT OF THE PLAN
+033100131231    ***   UNMATCHED MONTHS ARE SKIPPED.
+033200131231    ***
+033300131231     C                   IF        ALL_ACC = YES AND
+033400131231     C                             ((PRENEW <> MRM AND KF@PDT = 'M') OR
+033500131231     C                              (PRENEW <> DRM AND KF@PDT = 'D'))
+033600131231     C                   LEAVESR
+033700131231     C                   ENDIF
+033800140212    ***
+033900140212    *** GET PLAN AUXILIARY
+034000140212    ***
+034100140212     C     KL#TSP        CHAIN     PLNAUXR
+034200140212     C                   IF        NOT %FOUND(PLNAUXP)
+034300140212     C                   LEAVESR
+034400140212     C                   ENDIF
+034500131231    ***
+034600131231    *** IF NOT AN ACA PLAN, SKIP
+034700131231    ***
+034800141107     C                   IF        PXACAR <> 'Y' AND PXACAR <> 'D'
+034900131230     C                   LEAVESR
+035000131230     C                   ENDIF
+035100140220    ***
+035200140220    *** GET CARRIER GROUPER
+035300140220    ***
+035400140220     C     PCARR         CHAIN     CARMSR
+035500140220     C                   IF        NOT %FOUND(CARUNIQUE)
+035600140220     C                   LEAVESR
+035700140220     C                   ENDIF
+035800140220    ***
+035900140220    *** SET CARRIER GROUPER FIELD
+036000140220    ***
+036100140220     C                   EVAL      KF@CAR = CGRPCD
+036200140212    ***
+036300140212    *** IS THERE AN EXISTING RECORD FOR THIS PRODUCT?
+036400140212    ***
+036500140212     C                   EVAL      ARG_XST = NO
+036600140212     C     KL#TSAPDT     CHAIN     ACARGRF
+036700140224     C                   IF        %FOUND(ACARGRP)
+036800140212     C                   EVAL      ARG_XST = YES
+036900140212     C                   ENDIF
+037000131230    ***
+037100131231    *** IF ONE ACCOUNT AT A TIME, THEN CAPTURE THE RENEWAL MONTH AND THEN DETERMINE THE RANGE
+037200131231    ***
+037300131231     C                   IF        ALL_ACC = NO
+037400131231    *** *
+037500131231     C                   SELECT
+037600131231    *** *
+037700140212     C                   WHEN      MRM = 0 AND KF@PDT = 'M'
+037800140212     C                   EVAL      MRM = PRENEW + 0
+037900131231     C                   MOVE      MRM           @RM
+038000131231     C                   EXSR      $RANGE
+038100131231     C                   EVAL      M@RANGE = @RANGE
+038200141107     C                   EVAL      @XSX = %SUBST(M@RANGE:1:8)
+038300141107     C                   MOVE      @XSX          #XSX
+038400141107     C                   IF        #LIMIT < #XSX
+038500141107     C                   LEAVESR
+038600141107     C                   ENDIF
+038700131231    *** *
+038800140212     C                   WHEN      DRM = 0 AND KF@PDT = 'D'
+038900140212     C                   EVAL      DRM = PRENEW + 0
+039000131231     C                   MOVE      DRM           @RM
+039100131230     C                   EXSR      $RANGE
+039200131231     C                   EVAL      D@RANGE = @RANGE
+039300141107     C                   EVAL      @XSX = %SUBST(D@RANGE:1:8)
+039400141107     C                   MOVE      @XSX          #XSX
+039500141107     C                   IF        #LIMIT < #XSX
+039600141107     C                   LEAVESR
+039700141107     C                   ENDIF
+039800131231    *** *
+039900131231     C                   ENDSL
+040000141107    *** *
+040100131230     C                   ENDIF
+040200140212    ***
+040300140212    *** IF ALL ACCOUNTS, THEN CHECK FOR USE OF DEFAULT VERSUS OVERRIDE
+040400140212    ***
+040500140212     C                   IF        ALL_ACC = YES
+040600140212    *** *
+040700140212     C                   SELECT
+040800140212    *** *
+040900140212     C                   WHEN      KF@PDT = 'M'
+041000140212     C                   EVAL      M@RANGE = M@DEFAULT
+041100140212     C                   IF        ARG_XST = NO
+041200140212     C                   EVAL      @XSX = %SUBST(M@RANGE:1:8)
+041300140212     C                   MOVE      @XSX          #XSX
+041400140212     C                   EXSR      $DATEOVRD
+041500140212     C                   EVAL      %SUBST(@RANGE:1:8) = @XSX
+041600140212     C                   EXSR      $TORANGE
+041700140212     C                   EVAL      M@RANGE = @RANGE
+041800140212     C                   ENDIF
+041900140212    *** *
+042000140212     C                   WHEN      KF@PDT = 'D'
+042100140212     C                   EVAL      D@RANGE = D@DEFAULT
+042200140212     C                   IF        ARG_XST = NO
+042300140212     C                   EVAL      @XSX = %SUBST(D@RANGE:1:8)
+042400140212     C                   MOVE      @XSX          #XSX
+042500140212     C                   EXSR      $DATEOVRD
+042600140212     C                   EVAL      %SUBST(@RANGE:1:8) = @XSX
+042700140212     C                   EXSR      $TORANGE
+042800140212     C                   EVAL      D@RANGE = @RANGE
+042900140212     C                   ENDIF
+043000140212    *** *
+043100140212     C                   ENDSL
+043200140212    *** *
+043300140212     C                   ENDIF
+043400131230    ***
+043500131231    *** OH YES, THERE IS A PHASE 2....
+043600131231    ***
+043700131231     C                   EXSR      $PHASE2
+043800131230    ***
+043900131230     C                   ENDSR
+044000131230   S***S
+044100131230     C     $RANGE        BEGSR
+044200131230    ***
+044300131231    *** OK, THIS IS THE IDEA.  WE TAKE TODAYS DATE, SAY 20141205, CHECK THE MONTH
+044400131231    *** OF TODAY AGAINST THE RENEWAL MONTH PARAMETER.  IF TODAY'S MONTH IS GREATER, THEN WE
+044500131231    *** ADVANCE A YEAR.  SO A PARM OF '02' [FEBRUARY RENEWALS] IS LESS THAN 12, SO WE MAKE
+044600131231    *** 2014 THE VALUE 2015.  BECAUSE IF WE DID NOT, THEN RENEWAL RANGE WOULD BE 20140201,
+044700131231    *** WHICH WOULD CAUSE TOTAL MAYHEM.
+044800131231    ***
+044900140212     C                   MOVE      #TODAY        #XSX
+045000131230     C                   MOVE      #XSX          @XSX
+045100131231    ***
+045200131231     C                   IF        @RM < %SUBST(@XSX:5:2)                        IF RENEWAL MONTH IN
+045300131231     C                   ADD       10000         #XSX                            FOLLOWING YR, ADD 1
+045400131231     C                   MOVE      #XSX          @XSX                            YEAR
+045500131231     C                   ENDIF
+045600131231    ***
+045700131231    *** NOW WE REPLACE MONTH AND DAY OF TODAY'S DATE, RESULTING IN 20150201.
+045800131231    ***
+045900131230     C                   EVAL      %SUBST(@XSX:5:4) = @RM + '01'
+046000140212    ***
+046100140212    *** IF NO PRE-EXISTING ACA REGION RECORD, THEN INITIAL OVERRIDE CHECK
+046200140212    *** FOR SINGLE ACCOUNT; SEE ELSEWHERE FOR ALL ACCOUNTS
+046300140212    ***
+046400140212     C                   IF        ARG_XST = NO AND ALL_ACC = NO
+046500140212     C                   EXSR      $DATEOVRD
+046600140212     C                   ENDIF
+046700140212    ***
+046800140212    *** RECORD THIS AS THE FROM RANGE
+046900140212    ***
+047000131230     C                   EVAL      %SUBST(@RANGE:1:8) = @XSX
+047100140212     C                   EXSR      $TORANGE
+047200140212    ***
+047300140212     C                   ENDSR
+047400140212   S***S
+047500140212     C     $TORANGE      BEGSR
+047600131231    ***
+047700131231    *** ADD 1 YEAR AND SUBTRACT ONE DAY FROM THE CALCULATED VALUE ABOVE.
+047800131231    *** THIS RESULTS IN 20160131.  GIVING US OUR 12 MONTH RANGE.
+047900131231    *** RECORDING THIS AS THE TO RANGE
+048000131231    ***
+048100131230     C                   MOVE      @XSX          #XSX
+048200131230     C                   MOVE      #XSX          #ISO
+048300131230     C                   ADDDUR    1:*Y          #ISO
+048400131230     C                   SUBDUR    1:*D          #ISO
+048500131230     C                   MOVE      #ISO          #XSX
+048600131230     C                   MOVE      #XSX          @XSX
+048700131230     C                   EVAL      %SUBST(@RANGE:9:8) = @XSX
+048800131230    ***
+048900131230     C                   ENDSR
+049000131230   S***S
+049100140212    *** DATE OVERRIDE CHECK FOR INITIAL RECORDS
+049200140212    ***
+049300140212     C     $DATEOVRD     BEGSR
+049400131231    ***
+049500140212    *** INITIAL RECORD BOR CHECK; WE WILL USE LAST RENEWAL DATE
+049600140212    ***   AS LONG AS IT IS GREATER THAN/EQUAL TO 20140101
+049700140212    ***
+049800140212     C                   IF        PXBORLRD > 0
+049900140212     C                   EVAL      #XSX = PXBORLRD
+050000140212     C                   IF        #XSX < 20140000
+050100140212     C                   ADD       10000         #XSX
+050200140212     C                   ENDIF
+050300140212     C                   MOVE      #XSX          @XSX
+050400140212     C                   EVAL      %SUBST(@XSX:7:2) = '01'
+050500140212     C                   LEAVESR
+050600140212     C                   ENDIF
+050700140212    ***
+050800140212     C     KL#TSP        CHAIN     GRATER
+050900140212     C                   IF        NOT %FOUND(GRATEINQ)
+051000140212     C                   LEAVESR
+051100140212     C                   ENDIF
+051200140212    ***
+051300140212     C     KL#TSP        SETLL     GRATER
+051400140212     C                   DOU       %EOF(GRATEINQ)
+051500140212     C     KL#TSP        READE     GRATER
+051600140212     C                   IF        NOT %EOF(GRATEINQ)
+051700140212    *** **
+051800140212     C                   IF        FRMDAT > 20140000
+051900140212     C                   MOVE      FRMDAT        @XSX
+052000140212     C                   EVAL      %SUBST(@XSX:5:4) = @RM + '01'
+052100140212     C                   LEAVESR
+052200140212     C                   ENDIF
+052300140212    *** **
+052400140212     C                   IF        TODAT > 20140000
+052500140212     C                   MOVE      TODAT         @XSX
+052600140212     C                   EVAL      %SUBST(@XSX:5:4) = @RM + '01'
+052700140212     C                   LEAVESR
+052800140212     C                   ENDIF
+052900140212    *** **
+053000140212     C                   ENDIF
+053100140212     C                   ENDDO
+053200140212    ***
+053300140212     C                   ENDSR
+053400140212   S***S
+053500140212     C     $PHASE2       BEGSR
+053600140212    ***
+053700131231    *** GET THE PROPER STATE AND COUNTY TO USE.
+053800131231    ***
+053900131231     C                   EVAL      DS@RETURN =
+054000131231     C                                #RTV_ACCADDR(KF@TRS:KF@SUB:KF@ACC)
+054100131231    ***
+054200131231    *** FAILURE IS AN OPTION.....TO LEAVE THIS SUBROUTINE
+054300131231    ***
+054400131231     C                   IF        RAA_RESULT <> *BLANKS
+054500131231     C                   LEAVESR
+054600131231     C                   ENDIF
+054700131231    ***
+054800131231    *** NOW GET THE RATING REGION BASED ON THE STATE AND COUNTY
+054900131231    ***
+055000140606       C@DE20P = #RTV_CODE20('RATE STATE':RAA_STATE) ;
+055100140606    ***
+055200140103     C                   SELECT
+055300140606     C                   WHEN      C20ACTN1 = 'VALUE'
+055400140606     C                   EVAL      KF@REGN = %TRIM(C20ACTN2)
+055500140606     C                   WHEN      C20ACTN1 = 'RETRIEVE'
+055600131231     C                   EVAL      @STATE = RAA_STATE
+055700131231     C                   EVAL      @CNTY = RAA_COUNTY
+055800131231     C                   EVAL      KF@REGN = #GET_RATING_REGION(@STATE:@CNTY)
+055900140103     C                   OTHER
+056000140103     C                   EVAL      KF@REGN = '*ERROR*'
+056100140103     C                   ENDSL
+056200131231    ***
+056300131231    *** SET KEY VALUES FOR FROM/TO BASED ON THE COMM CTL PLAN'S PRODUCT TYPE
+056400131231    ***
+056500131231     C                   SELECT
+056600131231     C                   WHEN      KF@PDT = 'M'
+056700131231     C                   EVAL      DS@RANGE = M@RANGE
+056800131231     C                   WHEN      KF@PDT = 'D'
+056900131231     C                   EVAL      DS@RANGE = D@RANGE
+057000131231     C                   ENDSL
+057100131231    ***
+057200131231    *** DO WE ALREADY HAVE THIS PRODUCT AND DATE RANGE?
+057300131231    ***   IF WE DO, THEN WE ARE OUT OF HERE.
+057400131231    ***
+057500131231     C     KL#TSAD       CHAIN     ACARGRF
+057600140224     C                   IF        %FOUND(ACARGRP)
+057700131231     C                   LEAVESR
+057800131231     C                   ENDIF
+057900131231    ***
+058000131231    *** DON'T HAVE IT, WELL, LET'S GET IT.
+058100131231    ***
+058200131231     C                   CLEAR                   ACARGRF
+058300131231     C                   EVAL      AGTRST = KF@TRS
+058400131231     C                   EVAL      AGSUB# = KF@SUB
+058500131231     C                   EVAL      AGACCT = KF@ACC
+058600131231     C                   EVAL      AGRATRGN = KF@REGN
+058700131231     C                   EVAL      AGPDT = KF@PDT
+058800140220     C                   EVAL      AGCARGRP = KF@CAR
+058900131231     C                   EVAL      AGRNWLFR = KF@FR
+059000131231     C                   EVAL      AGRNWLTO = KF@TO
+059100140120     C                   EVAL      AGSTATE = RAA_STATE
+059200131231     C                   WRITE(E)  ACARGRF
+059300131231    ***
+059400131231     C                   ENDSR
+059500131231   S***S

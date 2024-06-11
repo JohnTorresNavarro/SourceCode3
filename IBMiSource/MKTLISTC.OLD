@@ -1,0 +1,18 @@
+000200000000/*____________________________________________________________________________*/
+000300000000/*                                                                            */
+000400000000/*  Description:  one time gen +
+000500000000/*                                                                            */
+000600000000/*  (c)Copyright 2004 by Innovative Outsourcing, Inc.                     */
+000700000000/*                                                                            */
+000800000000/*    Created by:  JALLEN - April 08, 2004 +
+000900000000/*____________________________________________________________________________*/
+001000000000
+001100000000             PGM
+001200000000
+001201040408             OVRDBF     FILE(AGENCY) TOFILE(F.AGENCY)
+001202040408             OVRDBF     FILE(SPRAGXR1) TOFILE(F.SPRAGXR1)
+001203040408             OVRDBF     FILE(SMANRLT3) TOFILE(F.SMANRLT3)
+001300040408             OVRDBF     FILE(ACCMST) TOFILE(F.ACCMST)
+001400040408             CALL       PGM(MKTLIST2)
+001500000000
+001600000000             ENDPGM

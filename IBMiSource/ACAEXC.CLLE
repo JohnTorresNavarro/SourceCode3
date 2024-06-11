@@ -1,0 +1,34 @@
+000100190305/*======================================================================*/
+000101190305/* CIG932CL - Cigna Mapping drill down                                  */
+000102190305/*======================================================================*/
+000103190305
+000104190305Pgm
+000105190305
+000106190305Dcl  &Continue   *char     1
+000107190305Dcl  &Program    *char    10
+000108190305
+000109190305/* In case they are not there...                                        */
+000110190305AddLibLE profoundui *last
+000111190305MonMsg cpf0000
+000112190305
+000113190305AddLibLE gbsmod *last
+000114190305MonMsg cpf0000
+000115190305
+000116190305AddLibLE gbspgm *last
+000117190305MonMsg cpf0000
+000118190305
+000119190305/* Make sure it is running in Genie environment...                      */
+000120190305ChgVar &Program 'GBS0013C'
+000121190305Call ChkProfndr Parm(&Program &Continue)
+000122190305if Cond(&Continue *eq 'N') then(+
+000123190305 do)
+000124190305  goto EndPgm
+000125190305EndDo
+000126190305
+000127190305/* Call program...                                                      */
+000128190305Call acaexr
+000129190305
+000130190305EndPgm:
+000131190305EndPgm
+000132190305
+000133190305/*======================================================================*/

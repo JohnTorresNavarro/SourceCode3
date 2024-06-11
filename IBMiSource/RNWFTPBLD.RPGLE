@@ -1,0 +1,48 @@
+000100000000     FIOFTPSC0  O  A E             DISK
+000200040304
+000300060714     D @CMD            S             40A   DIM(10) CTDATA
+000400060829     D @STD            S             40A   DIM(7) CTDATA
+000500040304
+000600020328     C                   MOVE      UDATE         #TDAY             6 0
+000700020328     C                   MOVE      #TDAY         @TDAY             6
+000800040304
+000900060829     C                   DO        5             X                 2 0
+001000000000     C                   MOVEL(P)  @STD(X)       F80
+001100000000     C                   WRITE     RIOFTPSC
+001200000000     C                   ENDDO
+001300040304
+001400060714     C                   DO        10            X
+001500000000     C                   MOVEL(P)  @CMD(X)       F80
+001600000000     C                   CAT       @TDAY:0       F80
+001700060714     C                   CAT       '.CSV':0      F80
+001800000000     C                   WRITE     RIOFTPSC
+001900000000     C                   ENDDO
+002000040304
+002100060829     C                   Z-ADD     5             X
+002200040304
+002300020328     C                   DO        2
+002400000000     C                   ADD       1             X
+002500000000     C                   MOVEL(P)  @STD(X)       F80
+002600000000     C                   WRITE     RIOFTPSC
+002700000000     C                   ENDDO
+002800000000     C                   MOVE      *ON           *INLR
+002900010815   S***S
+003000000000** CTDATA @CMD
+003100061030PUT RNWP010 ALL
+003200061030PUT RNWP011 MEDCHI
+003300061030PUT RNWP012 CMIA
+003400061030PUT RNWP013 IHU
+003500061030PUT RNWP014 OTHER
+003600061030PUT RNWP015 BLUES
+003700061030PUT RNWP016 ANCI
+003800061030PUT RNWP017 LBANC
+003900061030PUT RNWP018 LBBLU
+004000061030PUT RNWP019 LBPPN
+004100000000** CTDATA @STD
+004200060829ftpuser ftpuser
+004300060829CLOSE
+004400060829OPEN '10.1.0.8'
+004500060829USER anonymous sking@gbsio.net
+004600060829CD rft
+004700060829CLOSE
+004800060829QUIT
