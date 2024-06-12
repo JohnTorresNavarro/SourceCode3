@@ -1,821 +1,822 @@
-000100231212      *=========================================================================
-000200180326     h dftactgrp(*no) option(*noDebugIo) bnddir('GBSBIND')
-000300180326      *=========================================================================
-000400231121      * MOO932R - MOO - Account Mapping
-000500191209      *=========================================================================
-000600180326      * Date         Int  Description
-000700230427      * ----------   ---  ------------------------------------------------------
-000800231121      * 11/21/2023   jt   Original Creation
-000900240611      * 06/11/2024   jt   Test topic branch
-001000240611      * 06/11/2024   jt   Test #2 for topic branch
-001100240611      * 06/11/2024   jt   Done my part.
-001200240611      * 06/11/2024   ja   Begin work
-001300191209      *=========================================================================
-001400100520
-001500231121     Fmoo932d   cf   e             WorkStn Handler('PROFOUNDUI(HANDLER)')
-001600231121     F                                     SFile(SFL1 : RRN)
-001700231121
-001800231121     Ftrsmst    if   e           k disk    ExtFile('F.TRSMST')
-001900231121     F                                     rename(trsmsr:trustFile)
-002000231121
-002100231121     Fsubml1    if   e           k disk    ExtFile('F.SUBML1')
-002200231121     F                                     rename(submsr:subFile)
-002300231121
-002400231121     Faccmst    if   e           k disk    ExtFile('F.ACCMST')
-002500231121     F                                     rename(accmsr:acctFile)
-002600231121
-002700231121     Fcaraccp   uf a e           k disk    rename(caraccr:setupFile)
-002800231121
-002900231121     fcarplnq   if a e           k disk    rename(carplnr:setup2File)
-003000231121
-003100231121     fplnmst    if   e           k disk    extfile('F.PLNMST')
-003200231121     f                                     rename(plnmsr:planFile)
-003300231121
-003400231121     fgrate     if   e           k disk    extfile('F.GRATE')
-003500231121     f                                     rename(grater:rateFile)
-003600231121
-003700231121     fplnauxl   if   e           k disk    rename(plnauxr:auxFile)
-003800231121
-003900231121     Fhist      if a e           k disk    ExtFile('F.HIST')
-004000231121     F                                     rename(histr:histFile)
-004100231121
-004200231121     Fdiaryhd0  if a e           k disk    ExtFile('F.DIARYHD0')
-004300231121     F                                     rename(rdiaryhd:diaryFile)
-004400231121
-004500231121      *=========================================================================
-004600231121
-004700231121     d psds           sds
-004800231121     d proc_name         *proc
-004900231121     d user                  254    263
-005000231121
-005100231121     d rrn             s              5i 0
-005200231121     d trstk           s              3  0
-005300231121     d sub#k           s              3  0
-005400231121     d acctk           s              4  0
-005500231121     d valid           s              1
-005600231121     d option          s              1
-005700231121     d incarrier       s              2  0
-005800231121     d unique          s             10
-005900231121     d trstz           s              3s 0
-006000231121     d sub#z           s              3s 0
-006100231121     d acctz           s              4s 0
-006200231121     d subject         s             27
-006300231121     d trst            s              3
-006400231121     d sub             s              3
-006500231121     d acct            s              4
-006600231207     d cacid3d         s              8  0
-006700231212     d continue        s              1
-006800231213     d function        s             20
-006900231213     d dspErrMsg       s              1
-007000231213     d pgmName         s             10
-007100231121
-007200231121     d showAcct        pr                  ExtPgm('INQ008R')
-007300231121     d  trstz                         3s 0 const
-007400231121     d  sub#z                         3s 0 const
-007500231121     d  acctz                         4s 0 const
-007600231121
-007700231121     d plans           pr                  ExtPgm('MOO933R')
-007800231121     d  htrst                         3  0 const
-007900231121     d  hsub#                         3  0 const
-008000231121     d  hacct                         4  0 const
-008100231121
-008200231121     d dltadd          pr                  ExtPgm('TROFF3')
-008300231121     d  catrst                        3  0
-008400231121     d  casub#                        3  0
-008500231121     d  caacct                        4  0
-008600231121     d  incarrier                     2  0
-008700231121     d  option                        1
-008800231121
-008900231121     d e1envir         s             15
-009000231121     d e1libl          s             10
-009100231121     d e1Lib2          s             10
-009200231121     d envColor        s             10
-009300231121     d e1Acnm          s             40
-009400231121
-009500231121     d getEnv          pr                  ExtPgm('GETENVR')
-009600231121     d  e1envir                      15
-009700231121     d  e1libl                       10
-009800231121     d  e1Lib2                       10
-009900231121     d  envColor                     10
-010000231121     d  e1Acnm                       40
-010100231212
-010200231212     d ChkPgmAuth      pr                  extpgm('CHKPGMAUTH')
-010300231212     d  pgmname                      10
-010400231212     d  continue                      1
-010500231213
-010600231213     d chkFncAuth      pr                  ExtPgm('CHKFNCAUTH')
-010700231213     d  pgmname                      10
-010800231213     d  function                     20
-010900231213     d  dspErrMsg                     1
-011000231213     d  continue                      1
-011100231213
-011200231215     d createEDI       pr                  extpgm('MOO010CT')
-011300231215     d  sgroup#                       8
-011400231215
-011500231215     d*pgmTo_call      pr                  extpgm(pgmName)
-011600231213
-011700231213     d transmitTest    pr                  extpgm('FT_072CT')
-011800231121
-011900231121      //========================================================================
-012000231121      // includes
-012100231121      //========================================================================
-012200231121
-012300231121      /include GBSPGM/QMODSRC,#GettokPR
-012400231121      /include GBSPGM/QMODSRC,#zFillpr
-012500231121
-012600231121      //========================================================================
-012700231121      // mainline
-012800231121      //========================================================================
-012900231121
-013000231121       exsr init;
-013100231121       exsr main;
-013200231121       exsr exit;
-013300231121
-013400231121      //========================================================================
-013500231121      // main
-013600231121      //========================================================================
-013700231121
-013800231121       begsr main;
-013900231121
-014000231121        dow btnEXIT = '0';
-014100231121
-014200231121         // Clear the subfile...
-014300231121         sflclr = '1';
-014400231121
-014500231121         write sflctl1;
-014600231121         sflclr = '0';
-014700231121         rrn = 0;
-014800231121
-014900231121         // Load the subfile...
-015000231121         exsr loadSubfile;
-015100231121         unlock caraccp;
-015200231121
-015300231121         // Display the subfile.
-015400231121         sfldsp = '1';
-015500231121         exfmt sflctl1;
-015600231121
-015700231121         exsr checkButton;
-015800231121
-015900231121         sfldsp = '1';
-016000231121
-016100231121         // Check for icon click.
-016200231121         readc sfl1;
-016300231121         if not %eof;
-016400231121
-016500231121          //Lock record for update, if in change mode.
-016600231121          if buttonEdit ='1';
-016700231121           exsr editRecord;
-016800231121          endif;
-016900231121
-017000231213          if buttonPlan = '1';
-017100231121           exsr planRcd;
-017200231121          endif;
-017300231121
-017400231213          if buttonTest = '1';
-017500231213           exsr sendTest;
-017600231213          endif;
-017700231213
-017800231121          if seltsa = '1';
-017900231121           exsr showAccount;
-018000231121          endif;
-018100231121
-018200231121         endif;
-018300231121
-018400231121        enddo;
-018500231121
-018600231121       endsr;
-018700231121
-018800231121      //========================================================================
-018900231121      // load subfile
-019000231121      //========================================================================
-019100231121
-019200231121       begsr loadSubfile;
-019300231121
-019400231121        if s1ActNbr > ' ';
-019500231121         split();
-019600231121         trstk = %dec(trst:3:0);
-019700231121         sub#k = %dec(sub:3:0);
-019800231121         acctk = %dec(acct:4:0);
-019900231121        endif;
-020000231121
-020100231121        if s1ActNbr > ' ';
-020200231121         setll (unique: trstk : sub#k : acctk) setupFile;
-020300231121        else;
-020400231121         setll (unique) setupFile;
-020500231121        endif;
-020600231121
-020700231121        reade unique setupFile;
-020800231121
-020900231121        dow not %eof;
-021000231127         if transmitCk = 'Y';
-021100231121          if castatus = 'Y';
-021200231121           rrn += 1;
-021300231121            exsr moveFields;
-021400231121           write sfl1;
-021500231121          endif;
-021600231121         endif;
-021700231121
-021800231121         if transmitCk  = ' ';
-021900231121          rrn += 1;
-022000231121           exsr moveFields;
-022100231121          write sfl1;
-022200231121         endif;
-022300231121
-022400231121        reade unique setupFile;
-022500231121        enddo;
-022600231121
-022700231121       endsr;
-022800231121
-022900231121      //========================================================================
-023000231121      // move fields
-023100231121      //========================================================================
-023200231121
-023300231121       begsr moveFields;
-023400231121
-023500231121        htrst = catrst;
-023600231121        hsub# = casub#;
-023700231121        hacct = caacct;
-023800231121        tsa = %editc(catrst:'X') + '-' + %editc(casub#:'X') + '-' +
-023900231121              %editc(caacct:'X');
-024000231121
-024100231121        grnames = ' ';
-024200231121        chain (catrst : casub# : caacct) acctFile;
-024300231121        if %found;
-024400231121         grnames = acnam1;
-024500231121
-024600231121         canceled = ' ';
-024700231121         if atrmdt > 0;
-024800231121          canceled = '#ff0000';
-024900231121         endif;
-025000231121
-025100231121        endif;
-025200231121
-025300231213        sgroup# = cacid2;
-025400231213        if cacid2 = ' ';
-025500231213         //exsr getGroup;
-025600231213         //update setupFile;
-025700231121        endif;
-025800231121
-025900231121        transmit = castatus;
-026000231121
-026100231121       endsr;
-026200231121
-026300231121      //========================================================================
-026400231121      // checkButton
-026500231121      //========================================================================
-026600231121
-026700231121       begsr checkButton;
-026800231121
-026900231121        if buttonEdit = '1';
-027000231121         exsr editRecord;
-027100231121        endif;
-027200231121
-027300231121        if buttonAdd  = '1';
-027400231121         exsr addRcd;
-027500231121        endif;
-027600231121
-027700231121        if btnRefresh  = '1';
-027800231121         s1ActNbr = ' ';
-027900231121         btnRefresh = '0';
-028000231121        endif;
-028100231121
-028200231121        if buttonPlan = '1';
-028300231121        endif;
-028400231121
-028500231121       endsr;
-028600231121
-028700231121      //========================================================================
-028800231121      // add record
-028900231121      //========================================================================
-029000231121
-029100231121       begsr addRcd;
-029200231121
-029300231121        addRecord = '0';
-029400231121        btnExtAdd = '0';
-029500231121        strst = 0;
-029600231121        ssub# = 0;
-029700231121        sacct = 0;
-029800231207        stransmit = 'N';
-029900231121        errTrust = '0';
-030000231121        errSub = '0';
-030100231121        errAcct = '0';
-030200231121
-030300231121        dow btnExtAdd = '0';
-030400231121
-030500231121         exfmt adddtl;
-030600231121
-030700231121         if btnExtAdd = '1';
-030800231121          leavesr;
-030900231121         endif;
-031000231121
-031100231121         exsr validAdd;
-031200231121
-031300231121         if valid  = '1';
-031400231121          btnExtAdd = '0';
-031500231121         else;
-031600231121          btnExtAdd = '1';
-031700231121         endif;
-031800231121
-031900231121        enddo;
-032000231121
-032100231121       endsr;
-032200231121
-032300231121      //========================================================================
-032400231121      // plan record
-032500231121      //========================================================================
-032600231121
-032700231121       begsr planRcd;
-032800231121
-032900231121        plans(htrst : hsub# : hacct);
-033000231121
-033100231121        s1ActNbr = %editc(htrst:'X') + '-' + %editc(hsub#:'X') +
-033200231121                   '-' + %editc(hacct:'X');
-033300231121
-033400231121        buttonPlan = '0';
-033500231121
-033600231121       endsr;
-033700231121
-033800231213      //========================================================================
-033900231213      // send test
-034000231213      //========================================================================
-034100231213
-034200231213       begsr sendTest;
-034300231213
-034400231213        pgmName = 'MO' + sgroup#;
-034500231215        createEDI(sgroup#);
-034600231215        //pgmTo_call();
-034700231213        transmitTest();
-034800231213
-034900231213       endsr;
-035000231213
-035100231121      //========================================================================
-035200231121      // valid record
-035300231121      //========================================================================
-035400231121
-035500231121        begsr validAdd;
-035600231121
-035700231121         valid = '0';
-035800231121         errTrust = '0';
-035900231121         errSub = '0';
-036000231121         errAcct = '0';
-036100231121         errGroup# = '0';
-036200231121         errBGrpID = '0';
-036300231204         errDate = '0';
-036400231121
-036500231121         chain strst trustFile;
-036600231121         if not %found;
-036700231121          errTrust = '1';
-036800231121          valid = '1';
-036900231121         endif;
-037000231121
-037100231121         chain ssub# subFile;
-037200231121         if not %found;
-037300231121          errSub = '1';
-037400231121          valid = '1';
-037500231121         endif;
-037600231121
-037700231121         chain (strst : ssub# : sacct) acctFile;
-037800231121         if not %found;
-037900231121          errAcct = '1';
-038000231121          valid = '1';
-038100231121         endif;
-038200231204
-038300231204         if sgroup = ' ';
-038400231204          errGRoup# = '1';
-038500231204           valid = '1';
-038600231204          leavesr;
-038700231204         endif;
-038800231204
-038900231204         if sbilgrpid = ' ';
-039000231204          errBGrpID = '1';
-039100231204           valid = '1';
-039200231204          leavesr;
-039300231204         endif;
-039400231204
-039500231204         if sstartdate = d'0001-01-01';
-039600231204          errDate = '1';
-039700231204           valid = '1';
-039800231204          leavesr;
-039900231204
-040000231204         endif;
-040100231121         if valid = '0';
-040200231121          exsr addRecd;
-040300231204
-040400231204          s1ActNbr = %editc(strst:'X') + '-' + %editc(ssub#:'X') +
-040500231121                     '-' + %editc(sacct:'X');
-040600231121         endif;
-040700231121
-040800231121        endsr;
-040900231121
-041000231121      //========================================================================
-041100231121      // valid add
-041200231121      //========================================================================
-041300231121
-041400231121        begsr addRecd;
-041500231121
-041600231212         cauniq = unique;
-041700231121         catrst = strst;
-041800231121         casub# = ssub#;
-041900231121         caacct = sacct;
-042000231121         castatus = stransmit;
-042100231121         castatus = stransmit;
-042200231121
-042300231121         chain (catrst : casub# : caacct) acctFile;
-042400231121         if %found;
-042500231207          cacid1 = acnam1;
-042600231121         endif;
-042700231121
-042800231207         cacid2 = sgroup;
-042900231207         cacid3 = %char(%dec(sstartdate));
-043000231207         cacid4 = sbilgrpid;
-043100231207
-043200231207         //exsr getGroup;
-043300231207
-043400231207         exsr add_toTransfile;
-043500231121
-043600231121         write setupFile;
-043700231121
-043800231121        endsr;
-043900231121
-044000231121      //========================================================================
-044100231121      // get group
-044200231121      //========================================================================
-044300231121
-044400231121       begsr getGroup;
-044500231121
-044600231121        setll (strst : ssub# : sacct) auxFile;
-044700231121        reade (strst : ssub# : sacct) auxFile;
-044800231121        dow not %eof;
-044900231121
-045000231121         chain (strst : ssub# : pxplan) planFile;
-045100231121         if pcarr = 'HAR' or pcarr = 'SBS';
-045200231121
-045300231121          chain (strst : ssub# : pxplan) rateFile;
-045400231121          if %found;
-045500231121           cacid2 = group#;
-045600231121           leavesr;
-045700231121          endif;
-045800231121
-045900231121         endif;
-046000231121
-046100231121        reade (strst : ssub# : sacct) auxFile;
-046200231121        enddo;
-046300231121
-046400231121       endsr;
-046500231121
-046600231121      //========================================================================
-046700231121      // add plans
-046800231121      //========================================================================
-046900231121
-047000231121       //begsr addPlans;
-047100231121
-047200231121       // setll (strst : ssub# : sacct) auxFile;
-047300231121       // reade (strst : ssub# : sacct) auxFile;
-047400231121       // dow not %eof;
-047500231121
-047600231121       //  chain (strst : ssub# : pxplan) planFile;
-047700231121       //  if pcarr = 'HAR' or pcarr = 'SBS';
-047800231121
-047900231121       //  chain (unique : strst : ssub# : pxplan : sacct) setup2File;
-048000231121       //   if %found;
-048100231121       //    leavesr;
-048200231121       //   endif;
-048300231121
-048400231121       //   chain ('9000000003' : strst : ssub# : pxplan : sacct) setup2File;
-048500231121       //   if not %found;
-048600231121       //    cpuniq = '9000000003';
-048700231121       //    cptrst = strst;
-048800231121       //    cpsub# = ssub#;
-048900231121       //    cpacct = sacct;
-049000231121
-049100231121       //    if plncat = 'PHI';
-049200231121       //     cpcctr = 'HIP';
-049300231121       //    endif;
-049400231121
-049500231121       //    if plncat = 'PO6';
-049600231121       //     cpcctr = 'VAC';
-049700231121       //    endif;
-049800231121
-049900231121       //    cpplan = pxplan;
-050000231121
-050100231121       //    chain (strst : ssub# : pxplan) rateFile;
-050200231121       //    if %found;
-050300231121       //     cpcid1 = %subst(group#:1:6);
-050400231121       //     cptxt1 = 'GROUP #';
-050500231121       //    endif;
-050600231121
-050700231121       //    cptxt2 = 'PLAN OPTION';
-050800231121       //    cptxt3 = 'GROUP ID';
-050900231121       //    cptxt4 = 'PLAN #';
-051000231121       //    cptxt5 = 'CLASS CODE';
-051100231121
-051200231121       //    write setup2File;
-051300231121       //   endif;
-051400231121
-051500231121       //  endif;
-051600231121
-051700231121       // reade (strst : ssub# : sacct) auxFile;
-051800231121       // enddo;
-051900231121
-052000231121       //endsr;
-052100231121
-052200231121      //========================================================================
-052300231121      // edit record
-052400231121      //========================================================================
-052500231121
-052600231121       begsr editRecord;
-052700231121
-052800231121        btnUpdRcd = '0';
-052900231121        btnExtEdt = '0';
-053000231121        strst = htrst;
-053100231121        ssub# = hsub#;
-053200231121        sacct = hacct;
-053300231121        stransmit = transmit;
-053400231121
-053500231207        sgroup = cacid2;
-053600231207        cacid3d = %dec(cacid3:8:0);
-053700231207        sstartdate = %date(cacid3d:*iso);
-053800231207        sbilgrpid = cacid4;
-053900231207
-054000231121
-054100231121        chain(n) (unique : strst : ssub# : sacct) setupFile;
-054200231121
-054300231121        errTrust = '0';
-054400231121        errSub = '0';
-054500231121        errAcct = '0';
-054600231121
-054700231121        dow btnExtEdt = '0';
-054800231121
-054900231121         exfmt maintdtl;
-055000231121
-055100231121         if btnUpdRcd = '1';
-055200231121          exsr validEdit;
-055300231121         endif;
-055400231121
-055500231121        enddo;
-055600231121
-055700231121        s1ActNbr = %editc(htrst:'X') + '-' + %editc(hsub#:'X') +
-055800231121                   '-' + %editc(hacct:'X');
-055900231121
-056000231121        buttonEdit = '0';
-056100231121
-056200231121       endsr;
-056300231121
-056400231121      //========================================================================
-056500231121      // valid record
-056600231121      //========================================================================
-056700231121
-056800231121        begsr validEdit;
-056900231121
-057000231121         valid = '0';
-057100231121         errTrust = '0';
-057200231121         errSub = '0';
-057300231121         errAcct = '0';
-057400231121         errGroup# = '0';
-057500231121         errBGrpID = '0';
-057600231204         errDate = '0';
-057700231121
-057800231121         chain strst trustFile;
-057900231121         if not %found;
-058000231121          errTrust = '1';
-058100231121           valid = '1';
-058200231121          leavesr;
-058300231121         endif;
-058400231121
-058500231121         chain ssub# subFile;
-058600231121         if not %found;
-058700231121          errSub = '1';
-058800231121           valid = '1';
-058900231121          leavesr;
-059000231121         endif;
-059100231121
-059200231121         chain (strst : ssub# : sacct) acctFile;
-059300231121         if not %found;
-059400231121          errAcct = '1';
-059500231121           valid = '1';
-059600231121          leavesr;
-059700231121         endif;
-059800231121
-059900231121         if sgroup = ' ';
-060000231121          errGRoup# = '1';
-060100231121           valid = '1';
-060200231121          leavesr;
-060300231121         endif;
-060400231121
-060500231121         if sbilgrpid = ' ';
-060600231121          errBGrpID = '1';
-060700231121           valid = '1';
-060800231121          leavesr;
-060900231121         endif;
-061000231121
-061100231204         if sstartdate = d'0001-01-01';
-061200231204          errDate = '1';
-061300231204           valid = '1';
-061400231204          leavesr;
-061500231204         endif;
-061600231204
-061700231121         if valid = '0';
-061800231121          exsr edtRecord;
-061900231121          btnExtEdt = '1';
-062000231121         endif;
-062100231121
-062200231121        endsr;
-062300231121
-062400231121      //========================================================================
-062500231121      // edit record
-062600231121      //========================================================================
-062700231121
-062800231121        begsr edtRecord;
-062900231121
-063000231121         chain (unique : htrst : hsub# : hacct) setupFile;
-063100231121         catrst = strst;
-063200231121         casub# = ssub#;
-063300231121         caacct = sacct;
-063400231121         castatus = stransmit;
-063500231207
-063600231207         cacid2 = sgroup;
-063700231207         cacid3 = %char(%dec(sstartdate));
-063800231207         cacid4 = sbilgrpid;
-063900231207
-064000231121         exsr add_toTransfile;
-064100231121
-064200231121         update setupFile;
-064300231121
-064400231121        endsr;
-064500231121
-064600231121       //===========================================================================================
-064700231121       // Add to Transmission file
-064800231121       //===========================================================================================
-064900231121
-065000231121       begsr add_toTransfile;
-065100231121
-065200231121        select;
-065300231121         when castatus = 'Y';
-065400231121          option = 'D';
-065500231127          incarrier = 22;
-065600231121          dltadd(catrst : casub# : caacct : incarrier : option);
-065700231121
-065800231121         when castatus = 'N';
-065900231121          option = 'A';
-066000231127          incarrier = 22;
-066100231121          dltadd(catrst : casub# : caacct : incarrier : option);
-066200231121
-066300231121         other;
-066400231121          option = 'X';
-066500231127          incarrier = 22;
-066600231121          dltadd(catrst : casub# : caacct : incarrier : option);
-066700231121        endsl;
-066800231121
-066900231121        exsr history;
-067000231121
-067100231121       endsr;
-067200231121
-067300231121      //========================================================================
-067400231121      // show account
-067500231121      //========================================================================
-067600231121
-067700231121       begsr showAccount;
-067800231121
-067900231121       trstz= htrst;
-068000231121       sub#z= hsub#;
-068100231121       acctz= hacct;
-068200231121
-068300231127       showAcct(trstz : sub#z: acctz);
-068400231121
-068500231127       seltsa = ' ';
-068600231121
-068700231121       endsr;
-068800231121
-068900231121      //===========================================================================
-069000231121      // history
-069100231121      //===========================================================================
-069200231121
-069300231121       begsr history;
-069400231121
-069500231121        select;
-069600231121         when castatus = 'Y';
-069700231121          subject = 'MOO-TRANSMISSION TURNED ON';
-069800231121
-069900231121         when castatus = 'N';
-070000231121          subject = 'MOO-TRANSMISSION TURNED OFF';
-070100231121
-070200231121         other;
-070300231121          subject = 'MOO-TRANSMISSION IN TESTING';
-070400231121        endsl;
-070500231121
-070600231121        clear diaryFile;
-070700231121        nhkey = %editc(catrst:'X') + %editc(casub#:'X') + %editc(caacct:'X');
-070800231121        nhcode = 'WFT';
-070900231121        nhaddt = %dec(%date);
-071000231121        nhadti = %dec(%time);
-071100231121        nhadus = user;
-071200231121        nhsubj = subject;
-071300231121
-071400231121        write diaryFile;
-071500231121
-071600231121        clear histFile;
-071700231121        hkey = %editc(catrst:'X') + %editc(casub#:'X') + %editc(caacct:'X');
-071800231121        trcode = 'UHM';
-071900231121        hprgnm = proc_name;
-072000231121        hstrst = catrst;
-072100231121        hssub# = casub#;
-072200231121        hsacct = caacct;
-072300231121        hsdltd = 'A';
-072400231121        trdate = %dec(%date);
-072500231121        hstrtime = %time;
-072600231121        hoper = user;
-072700231121        ck#not = subject;
-072800231121
-072900231121        write histFile;
-073000231121
-073100231121       endsr;
-073200231121
-073300231121      //========================================================================
-073400231121      // exit
-073500231121      //========================================================================
-073600231121
-073700231121       begsr exit;
-073800231121
-073900231121        *inlr = '1';
-074000231121        return;
-074100231121
-074200231121       endsr;
-074300231121
-074400231121      //========================================================================
-074500231121      // init
-074600231121      //========================================================================
-074700231121
-074800231121       begsr init;
-074900231121
-075000231121        btnREFRESH = '0';
-075100231121        btnEXIT = '0';
-075200231121        btnUpdRcd = '0';
-075300231121        buttonPlan = '0';
-075400231121        buttonEdit = '0';
-075500231121        buttonAdd = '0';
-075600231121
-075700231121        sfldsp = '0';
-075800231121        sflclr = '0';
-075900231121
-076000231121        pgmname = proc_name;
-076100231212
-076200231212        ChkPgmAuth(pgmname : continue);
-076300231212        if continue = 'N';
-076400231212         exsr exit;
-076500231212        endif;
-076600231121
-076700231212        unique = '0000000319';
-076800231121
-076900231121        getenv(e1envir : e1libl : e1Lib2 : envColor : e1Acnm);
-077000231213
-077100231213        function = 'SENDTEST';
-077200231213        dspErrMsg = 'N';
-077300231213
-077400231213        ChkFncAuth(pgmname : function : dspErrMsg : continue);
-077500231213        if continue = 'Y';
-077600231213         showTest = '1' and e1libl = 'QS36F';
-077700231213        else;
-077800231213         showTest = '0';
-077900231213        endif;
-078000231121
-078100231121       endsr;
-078200231121
-078300231121      //========================================================================
-078400231121      // Split out the account number
-078500231121      //========================================================================
-078600231121
-078700231121       Dcl-Proc Split;
-078800231121
-078900231121         dcl-s x int(10);
-079000231121         dcl-s tokens varchar(100) dim(50);
-079100231121
-079200231121         tokens(*) = #Gettok( s1ActNbr : '-' : x );
-079300231121
-079400231121         x = %lookup( '' : tokens ) ;
-079500231121         if x = 2;
-079600231121           Trst = #zFill( 3 : %Trim( Tokens(1) ));
-079700231121           Sub  = '000';
-079800231121           Acct = '0000';
-079900231121
-080000231121           s1ActNbr = trst + '-' + Sub + '-' + Acct;
-080100231121         EndIf;
-080200231121
-080300231121         if x = 3;
-080400231121           Trst = #zFill( 3 : %Trim( Tokens(1) ));
-080500231121           Sub  = #zFill( 3 : %Trim( Tokens(2) ));
-080600231121           Acct = '0000';
-080700231121
-080800231121           s1ActNbr = trst + '-' + Sub + '-' + Acct;
-080900231121         EndIf;
-081000231121
-081100231121         if x = 4;
-081200231121           Trst = #zFill( 3 : %Trim( Tokens(1) ));
-081300231121           Sub  = #zFill( 3 : %Trim( Tokens(2) ));
-081400231121           Acct = #zFill( 4 : %Trim( Tokens(3) ));
-081500231121
-081600231121           s1ActNbr = trst + '-' + Sub + '-' + Acct;
-081700231121         EndIf;
-081800231121
-081900231121       End-Proc;
-082000231121
-082100231121      //========================================================================
+      *=========================================================================
+     h dftactgrp(*no) option(*noDebugIo) bnddir('GBSBIND')
+      *=========================================================================
+      * MOO932R - MOO - Account Mapping
+      *=========================================================================
+      * Date         Int  Description
+      * ----------   ---  ------------------------------------------------------
+      * 11/21/2023   jt   Original Creation
+      * 06/11/2024   jt   Test topic branch
+      * 06/11/2024   jt   Test #2 for topic branch
+      * 06/11/2024   jt   Done my part.
+      * 06/11/2024   ja   Begin work
+      * 06/12/2024   jt   Demo for DK
+      *=========================================================================
+
+     Fmoo932d   cf   e             WorkStn Handler('PROFOUNDUI(HANDLER)')
+     F                                     SFile(SFL1 : RRN)
+
+     Ftrsmst    if   e           k disk    ExtFile('F.TRSMST')
+     F                                     rename(trsmsr:trustFile)
+
+     Fsubml1    if   e           k disk    ExtFile('F.SUBML1')
+     F                                     rename(submsr:subFile)
+
+     Faccmst    if   e           k disk    ExtFile('F.ACCMST')
+     F                                     rename(accmsr:acctFile)
+
+     Fcaraccp   uf a e           k disk    rename(caraccr:setupFile)
+
+     fcarplnq   if a e           k disk    rename(carplnr:setup2File)
+
+     fplnmst    if   e           k disk    extfile('F.PLNMST')
+     f                                     rename(plnmsr:planFile)
+
+     fgrate     if   e           k disk    extfile('F.GRATE')
+     f                                     rename(grater:rateFile)
+
+     fplnauxl   if   e           k disk    rename(plnauxr:auxFile)
+
+     Fhist      if a e           k disk    ExtFile('F.HIST')
+     F                                     rename(histr:histFile)
+
+     Fdiaryhd0  if a e           k disk    ExtFile('F.DIARYHD0')
+     F                                     rename(rdiaryhd:diaryFile)
+
+      *=========================================================================
+
+     d psds           sds
+     d proc_name         *proc
+     d user                  254    263
+
+     d rrn             s              5i 0
+     d trstk           s              3  0
+     d sub#k           s              3  0
+     d acctk           s              4  0
+     d valid           s              1
+     d option          s              1
+     d incarrier       s              2  0
+     d unique          s             10
+     d trstz           s              3s 0
+     d sub#z           s              3s 0
+     d acctz           s              4s 0
+     d subject         s             27
+     d trst            s              3
+     d sub             s              3
+     d acct            s              4
+     d cacid3d         s              8  0
+     d continue        s              1
+     d function        s             20
+     d dspErrMsg       s              1
+     d pgmName         s             10
+
+     d showAcct        pr                  ExtPgm('INQ008R')
+     d  trstz                         3s 0 const
+     d  sub#z                         3s 0 const
+     d  acctz                         4s 0 const
+
+     d plans           pr                  ExtPgm('MOO933R')
+     d  htrst                         3  0 const
+     d  hsub#                         3  0 const
+     d  hacct                         4  0 const
+
+     d dltadd          pr                  ExtPgm('TROFF3')
+     d  catrst                        3  0
+     d  casub#                        3  0
+     d  caacct                        4  0
+     d  incarrier                     2  0
+     d  option                        1
+
+     d e1envir         s             15
+     d e1libl          s             10
+     d e1Lib2          s             10
+     d envColor        s             10
+     d e1Acnm          s             40
+
+     d getEnv          pr                  ExtPgm('GETENVR')
+     d  e1envir                      15
+     d  e1libl                       10
+     d  e1Lib2                       10
+     d  envColor                     10
+     d  e1Acnm                       40
+
+     d ChkPgmAuth      pr                  extpgm('CHKPGMAUTH')
+     d  pgmname                      10
+     d  continue                      1
+
+     d chkFncAuth      pr                  ExtPgm('CHKFNCAUTH')
+     d  pgmname                      10
+     d  function                     20
+     d  dspErrMsg                     1
+     d  continue                      1
+
+     d createEDI       pr                  extpgm('MOO010CT')
+     d  sgroup#                       8
+
+     d*pgmTo_call      pr                  extpgm(pgmName)
+
+     d transmitTest    pr                  extpgm('FT_072CT')
+
+      //========================================================================
+      // includes
+      //========================================================================
+
+      /include GBSPGM/QMODSRC,#GettokPR
+      /include GBSPGM/QMODSRC,#zFillpr
+
+      //========================================================================
+      // mainline
+      //========================================================================
+
+       exsr init;
+       exsr main;
+       exsr exit;
+
+      //========================================================================
+      // main
+      //========================================================================
+
+       begsr main;
+
+        dow btnEXIT = '0';
+
+         // Clear the subfile...
+         sflclr = '1';
+
+         write sflctl1;
+         sflclr = '0';
+         rrn = 0;
+
+         // Load the subfile...
+         exsr loadSubfile;
+         unlock caraccp;
+
+         // Display the subfile.
+         sfldsp = '1';
+         exfmt sflctl1;
+
+         exsr checkButton;
+
+         sfldsp = '1';
+
+         // Check for icon click.
+         readc sfl1;
+         if not %eof;
+
+          //Lock record for update, if in change mode.
+          if buttonEdit ='1';
+           exsr editRecord;
+          endif;
+
+          if buttonPlan = '1';
+           exsr planRcd;
+          endif;
+
+          if buttonTest = '1';
+           exsr sendTest;
+          endif;
+
+          if seltsa = '1';
+           exsr showAccount;
+          endif;
+
+         endif;
+
+        enddo;
+
+       endsr;
+
+      //========================================================================
+      // load subfile
+      //========================================================================
+
+       begsr loadSubfile;
+
+        if s1ActNbr > ' ';
+         split();
+         trstk = %dec(trst:3:0);
+         sub#k = %dec(sub:3:0);
+         acctk = %dec(acct:4:0);
+        endif;
+
+        if s1ActNbr > ' ';
+         setll (unique: trstk : sub#k : acctk) setupFile;
+        else;
+         setll (unique) setupFile;
+        endif;
+
+        reade unique setupFile;
+
+        dow not %eof;
+         if transmitCk = 'Y';
+          if castatus = 'Y';
+           rrn += 1;
+            exsr moveFields;
+           write sfl1;
+          endif;
+         endif;
+
+         if transmitCk  = ' ';
+          rrn += 1;
+           exsr moveFields;
+          write sfl1;
+         endif;
+
+        reade unique setupFile;
+        enddo;
+
+       endsr;
+
+      //========================================================================
+      // move fields
+      //========================================================================
+
+       begsr moveFields;
+
+        htrst = catrst;
+        hsub# = casub#;
+        hacct = caacct;
+        tsa = %editc(catrst:'X') + '-' + %editc(casub#:'X') + '-' +
+              %editc(caacct:'X');
+
+        grnames = ' ';
+        chain (catrst : casub# : caacct) acctFile;
+        if %found;
+         grnames = acnam1;
+
+         canceled = ' ';
+         if atrmdt > 0;
+          canceled = '#ff0000';
+         endif;
+
+        endif;
+
+        sgroup# = cacid2;
+        if cacid2 = ' ';
+         //exsr getGroup;
+         //update setupFile;
+        endif;
+
+        transmit = castatus;
+
+       endsr;
+
+      //========================================================================
+      // checkButton
+      //========================================================================
+
+       begsr checkButton;
+
+        if buttonEdit = '1';
+         exsr editRecord;
+        endif;
+
+        if buttonAdd  = '1';
+         exsr addRcd;
+        endif;
+
+        if btnRefresh  = '1';
+         s1ActNbr = ' ';
+         btnRefresh = '0';
+        endif;
+
+        if buttonPlan = '1';
+        endif;
+
+       endsr;
+
+      //========================================================================
+      // add record
+      //========================================================================
+
+       begsr addRcd;
+
+        addRecord = '0';
+        btnExtAdd = '0';
+        strst = 0;
+        ssub# = 0;
+        sacct = 0;
+        stransmit = 'N';
+        errTrust = '0';
+        errSub = '0';
+        errAcct = '0';
+
+        dow btnExtAdd = '0';
+
+         exfmt adddtl;
+
+         if btnExtAdd = '1';
+          leavesr;
+         endif;
+
+         exsr validAdd;
+
+         if valid  = '1';
+          btnExtAdd = '0';
+         else;
+          btnExtAdd = '1';
+         endif;
+
+        enddo;
+
+       endsr;
+
+      //========================================================================
+      // plan record
+      //========================================================================
+
+       begsr planRcd;
+
+        plans(htrst : hsub# : hacct);
+
+        s1ActNbr = %editc(htrst:'X') + '-' + %editc(hsub#:'X') +
+                   '-' + %editc(hacct:'X');
+
+        buttonPlan = '0';
+
+       endsr;
+
+      //========================================================================
+      // send test
+      //========================================================================
+
+       begsr sendTest;
+
+        pgmName = 'MO' + sgroup#;
+        createEDI(sgroup#);
+        //pgmTo_call();
+        transmitTest();
+
+       endsr;
+
+      //========================================================================
+      // valid record
+      //========================================================================
+
+        begsr validAdd;
+
+         valid = '0';
+         errTrust = '0';
+         errSub = '0';
+         errAcct = '0';
+         errGroup# = '0';
+         errBGrpID = '0';
+         errDate = '0';
+
+         chain strst trustFile;
+         if not %found;
+          errTrust = '1';
+          valid = '1';
+         endif;
+
+         chain ssub# subFile;
+         if not %found;
+          errSub = '1';
+          valid = '1';
+         endif;
+
+         chain (strst : ssub# : sacct) acctFile;
+         if not %found;
+          errAcct = '1';
+          valid = '1';
+         endif;
+
+         if sgroup = ' ';
+          errGRoup# = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         if sbilgrpid = ' ';
+          errBGrpID = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         if sstartdate = d'0001-01-01';
+          errDate = '1';
+           valid = '1';
+          leavesr;
+
+         endif;
+         if valid = '0';
+          exsr addRecd;
+
+          s1ActNbr = %editc(strst:'X') + '-' + %editc(ssub#:'X') +
+                     '-' + %editc(sacct:'X');
+         endif;
+
+        endsr;
+
+      //========================================================================
+      // valid add
+      //========================================================================
+
+        begsr addRecd;
+
+         cauniq = unique;
+         catrst = strst;
+         casub# = ssub#;
+         caacct = sacct;
+         castatus = stransmit;
+         castatus = stransmit;
+
+         chain (catrst : casub# : caacct) acctFile;
+         if %found;
+          cacid1 = acnam1;
+         endif;
+
+         cacid2 = sgroup;
+         cacid3 = %char(%dec(sstartdate));
+         cacid4 = sbilgrpid;
+
+         //exsr getGroup;
+
+         exsr add_toTransfile;
+
+         write setupFile;
+
+        endsr;
+
+      //========================================================================
+      // get group
+      //========================================================================
+
+       begsr getGroup;
+
+        setll (strst : ssub# : sacct) auxFile;
+        reade (strst : ssub# : sacct) auxFile;
+        dow not %eof;
+
+         chain (strst : ssub# : pxplan) planFile;
+         if pcarr = 'HAR' or pcarr = 'SBS';
+
+          chain (strst : ssub# : pxplan) rateFile;
+          if %found;
+           cacid2 = group#;
+           leavesr;
+          endif;
+
+         endif;
+
+        reade (strst : ssub# : sacct) auxFile;
+        enddo;
+
+       endsr;
+
+      //========================================================================
+      // add plans
+      //========================================================================
+
+       //begsr addPlans;
+
+       // setll (strst : ssub# : sacct) auxFile;
+       // reade (strst : ssub# : sacct) auxFile;
+       // dow not %eof;
+
+       //  chain (strst : ssub# : pxplan) planFile;
+       //  if pcarr = 'HAR' or pcarr = 'SBS';
+
+       //  chain (unique : strst : ssub# : pxplan : sacct) setup2File;
+       //   if %found;
+       //    leavesr;
+       //   endif;
+
+       //   chain ('9000000003' : strst : ssub# : pxplan : sacct) setup2File;
+       //   if not %found;
+       //    cpuniq = '9000000003';
+       //    cptrst = strst;
+       //    cpsub# = ssub#;
+       //    cpacct = sacct;
+
+       //    if plncat = 'PHI';
+       //     cpcctr = 'HIP';
+       //    endif;
+
+       //    if plncat = 'PO6';
+       //     cpcctr = 'VAC';
+       //    endif;
+
+       //    cpplan = pxplan;
+
+       //    chain (strst : ssub# : pxplan) rateFile;
+       //    if %found;
+       //     cpcid1 = %subst(group#:1:6);
+       //     cptxt1 = 'GROUP #';
+       //    endif;
+
+       //    cptxt2 = 'PLAN OPTION';
+       //    cptxt3 = 'GROUP ID';
+       //    cptxt4 = 'PLAN #';
+       //    cptxt5 = 'CLASS CODE';
+
+       //    write setup2File;
+       //   endif;
+
+       //  endif;
+
+       // reade (strst : ssub# : sacct) auxFile;
+       // enddo;
+
+       //endsr;
+
+      //========================================================================
+      // edit record
+      //========================================================================
+
+       begsr editRecord;
+
+        btnUpdRcd = '0';
+        btnExtEdt = '0';
+        strst = htrst;
+        ssub# = hsub#;
+        sacct = hacct;
+        stransmit = transmit;
+
+        sgroup = cacid2;
+        cacid3d = %dec(cacid3:8:0);
+        sstartdate = %date(cacid3d:*iso);
+        sbilgrpid = cacid4;
+
+
+        chain(n) (unique : strst : ssub# : sacct) setupFile;
+
+        errTrust = '0';
+        errSub = '0';
+        errAcct = '0';
+
+        dow btnExtEdt = '0';
+
+         exfmt maintdtl;
+
+         if btnUpdRcd = '1';
+          exsr validEdit;
+         endif;
+
+        enddo;
+
+        s1ActNbr = %editc(htrst:'X') + '-' + %editc(hsub#:'X') +
+                   '-' + %editc(hacct:'X');
+
+        buttonEdit = '0';
+
+       endsr;
+
+      //========================================================================
+      // valid record
+      //========================================================================
+
+        begsr validEdit;
+
+         valid = '0';
+         errTrust = '0';
+         errSub = '0';
+         errAcct = '0';
+         errGroup# = '0';
+         errBGrpID = '0';
+         errDate = '0';
+
+         chain strst trustFile;
+         if not %found;
+          errTrust = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         chain ssub# subFile;
+         if not %found;
+          errSub = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         chain (strst : ssub# : sacct) acctFile;
+         if not %found;
+          errAcct = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         if sgroup = ' ';
+          errGRoup# = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         if sbilgrpid = ' ';
+          errBGrpID = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         if sstartdate = d'0001-01-01';
+          errDate = '1';
+           valid = '1';
+          leavesr;
+         endif;
+
+         if valid = '0';
+          exsr edtRecord;
+          btnExtEdt = '1';
+         endif;
+
+        endsr;
+
+      //========================================================================
+      // edit record
+      //========================================================================
+
+        begsr edtRecord;
+
+         chain (unique : htrst : hsub# : hacct) setupFile;
+         catrst = strst;
+         casub# = ssub#;
+         caacct = sacct;
+         castatus = stransmit;
+
+         cacid2 = sgroup;
+         cacid3 = %char(%dec(sstartdate));
+         cacid4 = sbilgrpid;
+
+         exsr add_toTransfile;
+
+         update setupFile;
+
+        endsr;
+
+       //===========================================================================================
+       // Add to Transmission file
+       //===========================================================================================
+
+       begsr add_toTransfile;
+
+        select;
+         when castatus = 'Y';
+          option = 'D';
+          incarrier = 22;
+          dltadd(catrst : casub# : caacct : incarrier : option);
+
+         when castatus = 'N';
+          option = 'A';
+          incarrier = 22;
+          dltadd(catrst : casub# : caacct : incarrier : option);
+
+         other;
+          option = 'X';
+          incarrier = 22;
+          dltadd(catrst : casub# : caacct : incarrier : option);
+        endsl;
+
+        exsr history;
+
+       endsr;
+
+      //========================================================================
+      // show account
+      //========================================================================
+
+       begsr showAccount;
+
+       trstz= htrst;
+       sub#z= hsub#;
+       acctz= hacct;
+
+       showAcct(trstz : sub#z: acctz);
+
+       seltsa = ' ';
+
+       endsr;
+
+      //===========================================================================
+      // history
+      //===========================================================================
+
+       begsr history;
+
+        select;
+         when castatus = 'Y';
+          subject = 'MOO-TRANSMISSION TURNED ON';
+
+         when castatus = 'N';
+          subject = 'MOO-TRANSMISSION TURNED OFF';
+
+         other;
+          subject = 'MOO-TRANSMISSION IN TESTING';
+        endsl;
+
+        clear diaryFile;
+        nhkey = %editc(catrst:'X') + %editc(casub#:'X') + %editc(caacct:'X');
+        nhcode = 'WFT';
+        nhaddt = %dec(%date);
+        nhadti = %dec(%time);
+        nhadus = user;
+        nhsubj = subject;
+
+        write diaryFile;
+
+        clear histFile;
+        hkey = %editc(catrst:'X') + %editc(casub#:'X') + %editc(caacct:'X');
+        trcode = 'UHM';
+        hprgnm = proc_name;
+        hstrst = catrst;
+        hssub# = casub#;
+        hsacct = caacct;
+        hsdltd = 'A';
+        trdate = %dec(%date);
+        hstrtime = %time;
+        hoper = user;
+        ck#not = subject;
+
+        write histFile;
+
+       endsr;
+
+      //========================================================================
+      // exit
+      //========================================================================
+
+       begsr exit;
+
+        *inlr = '1';
+        return;
+
+       endsr;
+
+      //========================================================================
+      // init
+      //========================================================================
+
+       begsr init;
+
+        btnREFRESH = '0';
+        btnEXIT = '0';
+        btnUpdRcd = '0';
+        buttonPlan = '0';
+        buttonEdit = '0';
+        buttonAdd = '0';
+
+        sfldsp = '0';
+        sflclr = '0';
+
+        pgmname = proc_name;
+
+        ChkPgmAuth(pgmname : continue);
+        if continue = 'N';
+         exsr exit;
+        endif;
+
+        unique = '0000000319';
+
+        getenv(e1envir : e1libl : e1Lib2 : envColor : e1Acnm);
+
+        function = 'SENDTEST';
+        dspErrMsg = 'N';
+
+        ChkFncAuth(pgmname : function : dspErrMsg : continue);
+        if continue = 'Y';
+         showTest = '1' and e1libl = 'QS36F';
+        else;
+         showTest = '0';
+        endif;
+
+       endsr;
+
+      //========================================================================
+      // Split out the account number
+      //========================================================================
+
+       Dcl-Proc Split;
+
+         dcl-s x int(10);
+         dcl-s tokens varchar(100) dim(50);
+
+         tokens(*) = #Gettok( s1ActNbr : '-' : x );
+
+         x = %lookup( '' : tokens ) ;
+         if x = 2;
+           Trst = #zFill( 3 : %Trim( Tokens(1) ));
+           Sub  = '000';
+           Acct = '0000';
+
+           s1ActNbr = trst + '-' + Sub + '-' + Acct;
+         EndIf;
+
+         if x = 3;
+           Trst = #zFill( 3 : %Trim( Tokens(1) ));
+           Sub  = #zFill( 3 : %Trim( Tokens(2) ));
+           Acct = '0000';
+
+           s1ActNbr = trst + '-' + Sub + '-' + Acct;
+         EndIf;
+
+         if x = 4;
+           Trst = #zFill( 3 : %Trim( Tokens(1) ));
+           Sub  = #zFill( 3 : %Trim( Tokens(2) ));
+           Acct = #zFill( 4 : %Trim( Tokens(3) ));
+
+           s1ActNbr = trst + '-' + Sub + '-' + Acct;
+         EndIf;
+
+       End-Proc;
+
+      //========================================================================
