@@ -17,7 +17,7 @@
 001700130528    ? *                           generated only once a week instead   *
 001800130528    ? *                           of daily so the report will have to  *
 001900130528    ? *                           select for the previous week not for *
-002000250820    ? *                           "today". ..                          *
+002000250820    ? *                           "today". ...                         *
 002100070413      *                                                                *
 002200021218      *                                                                *
 002300991207    ? *_________________________________________________________________________
