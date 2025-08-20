@@ -13,7 +13,7 @@
       *  --------  --------    --------------------------------------  *
       * 06/18/01 dlk - change search prior to begin date to 3 months   *
       *                and supress print of missing invoices prior     *
-      *                to 1/1999 because of hist pruge.                *
+      *                to 1/1999 because of hist pruge...              *
       *                                                                *
       * 07/10/01 szz - Modify termination-date condition in order to   *
       *    001s        determine whether active account is in error.   *
