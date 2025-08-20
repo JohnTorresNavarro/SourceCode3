@@ -16,7 +16,7 @@
       *                to 1/1999 because of hist pruge...              *
       *                                                                *
       * 07/10/01 szz - Modify termination-date condition in order to   *
-      *    001s        determine whether active account is in error..  *
+      *    001s        determine whether active account is in error... *
       *                                                                *
       * 07/14/04 dlk - skip "inv b/f begin admin" errors b/f 01/02     *
       *                                                                *
